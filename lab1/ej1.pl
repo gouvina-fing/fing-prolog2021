@@ -24,6 +24,7 @@ generar_transpuesta(M, N, X) :- col(M, N, C), N2 is N-1, generar_transpuesta(M, 
 % --------------------------
 
 % elegir(?X,?L1,?L2) - La lista L2 resulta de eliminar un elemento de la lista L1.
+elegir(X, [], []).
 elegir(X, [X|T], T).
 elegir(X, [H|T], [H|L]) :- elegir(X, T, L).
 
