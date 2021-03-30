@@ -62,5 +62,17 @@ conjunto([H|T]) :- nat(H), conjunto(T), sin_repetidos([H|T],[H|T]).
 conj_iguales([], []).
 conj_iguales([H1|T1], [H2|T2]) :- 
     conjunto([H2|T2]),
+    conjunto([H1|T1]),
     borrar_todos([H2|T2], H1, X2),
     conj_iguales(T1, X2).
+
+subconjunto(_, []).
+subconjunto(C, [H|L]) :- conjunto(C), conjunto([H|L]), member(H, C), subconjunto(C, L).
+
+
+interseccion(C1, C2, I) :- subconjunto(C1, I), subconjunto(C2, I).
+
+%union([], [], []).
+%union(C1, C2, [H|U]) :- conjunto(C1), conjunto(C2), member(H, C1), borrar_todos(C1, H, D1), borrar_todos(C2, H, D2), union(D1, D2, U).
+%union(C1, C2, [H|U]) :- conjunto(C1), conjunto(C2), member(H, C2), borrar_todos(C1, H, D1), borrar_todos(C2, H, D2), union(D1, D2, U).
+
