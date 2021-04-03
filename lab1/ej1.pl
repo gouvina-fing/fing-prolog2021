@@ -52,11 +52,11 @@ valor_celda(I, J, [_|T], E) :- M is I-1, valor_celda(M, J, T, E).
 % OTRA FORMA
 % valor_celda(I,J,A,E) :- fila(I,A,F), enesimo(F, J, E).
 
-% fila(+M,?N,?F) - F es la fila N-ésima de la matriz
+% fila(?N,+M,?F) - F es la fila N-ésima de la matriz
 fila(1, [H|_], H).
 fila(N, [_|T], F) :- M is N-1, fila(T, M, F).
 
-% col(+M,?N,?C) - C es la columna N-ésima de la matriz
+% col(?N, +M,?C) - C es la columna N-ésima de la matriz
 col(N, [H], C) :- enesimo(H, N, X), agregar_adelante([], X, C).
 col(N, [H|T], C) :- col(N, T, C2), enesimo(H, N, X), agregar_adelante(C2, X, C).
 
@@ -65,7 +65,7 @@ col(N, [H|T], C) :- col(N, T, C2), enesimo(H, N, X), agregar_adelante(C2, X, C).
 % col( N, [H|T], [C1|C2]) :- enesimo(H, N, C1), col(T, N, C2).
 
 % transpuesta(?M, ?T) - T es la matriz transpuesta de M
-transpuesta([[]], [[]])
+transpuesta([[]], [[]]).
 transpuesta([H|T], X) :- largo(H, N), generar_transpuesta([H|T], 1, N, X).
 
 % numeros(+Inicio,+Fin,Lista) ← Lista es una lista ordenada de los números entre Inicio y Fin. Si Inicio es mayor que fin, el predicado falla.
