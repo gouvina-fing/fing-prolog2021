@@ -16,3 +16,5 @@ CHEQUEO
     se tiene una secuencia parcial, y se agrega otro paso que sea posible
 
 --------------------------------------
+
+caminito(5,[pos(2,1),pos(3,1),pos(4,2),pos(4,4),pos(2,3),pos(3,4),pos(2,4)],pos(1,1),pos(5,1),Caminito).
