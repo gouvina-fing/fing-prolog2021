@@ -1,0 +1,18 @@
+GENERACION
+    secuencia de celdas 
+        La primera es inicio en INICIO 
+        La ultima es FINAL
+        (maximo de la lista nxn?)
+CHEQUEO
+    cada 'paso' es 'posible'
+        la celda no es un muro
+        el siguiente es adyacente
+
+--------------------------------------
+(ir agregando a la secuencia mientras se chequea -> 'adyacentes')
+GENERACION
+    alguna secuencia
+CHEQUEO
+    se tiene una secuencia parcial, y se agrega otro paso que sea posible
+
+--------------------------------------
