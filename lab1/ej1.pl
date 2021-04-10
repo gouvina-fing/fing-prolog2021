@@ -5,19 +5,23 @@
 % Predicados auxiliares
 % --------------------------
 
-% pertenece(?X,?L) - 
+% pertenece(?X,?L) - Comprueba si el elemento X pertenece a la lista L
 pertenece(X,[X|_]).
 pertenece(X,[_|T]):- pertenece(X,T).
 
+% largo(?L,?N) - 
 largo([], 0).
 largo([_|T], X) :- largo(T, X2), X is X2 + 1.
 
+% pertenece(?X,?L) - 
 crear_fila(1, E, [E]).
 crear_fila(N, E, [E|T]) :- N > 1, N2 is N-1, crear_fila(N2, E, T).
 
+% pertenece(?X,?L) - 
 enesimo([H|_], 1, H).
 enesimo([_|T], N, X) :- M is N-1, enesimo(T, M, X).
 
+% pertenece(?X,?L) - 
 generar_transpuesta(M, L, L, [C]) :- col(L, M, C).
 generar_transpuesta(M, N, L, [C1|C2]) :- col(N, M, C1), N2 is N+1, generar_transpuesta(M, N2, L, C2).
 
