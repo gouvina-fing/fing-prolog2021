@@ -89,7 +89,138 @@ T = [[1]]
 ---------------------------------------------------------------
 
 col(2,[[8,-10,1],[5,4,2], [7,9,3]],[-10,4,9]).
+true .
 
 col(0,[[8,-10,1],[5,4,2], [7,9,3]],[-10,4,9]).
+false.
 
 col(5,[[8,-10,1],[5,4,2], [7,9,3]],[-10,4,9]).
+false.
+
+col(-1,[[8,-10,1],[5,4,2], [7,9,3]],[-10,4,9]).  
+false.
+
+HHMMMMM!!!! *THINKING EMOJI*
+
+col(1,[[8,-10,1],[5,4,2], [7,9]],C).   
+C = [8, 5, 7] 
+
+col(1,[[],[5,4,2], [7,9]],C).        
+false.
+
+col(1,[[1],[5,4,2], [7,9]],C). 
+C = [1, 5, 7] 
+
+col(2,[[1],[5,4,2], [7,9]],C). 
+false.
+
+col(N,[[8,-10,1],[5,4,2], [7,9,3]],C). 
+N = 1,
+C = [8, 5, 7] ;
+ERROR: Arguments are not sufficiently instantiated
+ERROR: In:
+ERROR:   [13] enesimo([7,9|...],_6536,_6538)
+ERROR:   [12] col(_6574,[[7|...]],_6578) at c:/users/ramip/onedrive/documents/code/prolog/fing-prolog2021/lab1/ej1.pl:60   
+ERROR:   [11] col(_6614,[[5|...],...],_6618) at c:/users/ramip/onedrive/documents/code/prolog/fing-prolog2021/lab1/ej1.pl:61
+ERROR:   [10] col(_6660,[[8|...],...|...],_6664) at c:/users/ramip/onedrive/documents/code/prolog/fing-prolog2021/lab1/ej1.pl:61
+ERROR:    [9] <user>
+   Exception: (12) col(_4492, [[7, 9, 3]], _6900) ? 
+
+
+col(N,[[8,-10,1],[5,4,2], [7,9,3]],[5,4,2]). 
+ERROR: Arguments are not sufficiently instantiated
+ERROR: In:
+ERROR:   [13] enesimo([7,9|...],_9102,_9104)
+ERROR:   [12] col(_9140,[[7|...]],_9144) at c:/users/ramip/onedrive/documents/code/prolog/fing-prolog2021/lab1/ej1.pl:60   
+ERROR:   [11] col(_9180,[[5|...],...],_9184) at c:/users/ramip/onedrive/documents/code/prolog/fing-prolog2021/lab1/ej1.pl:61
+ERROR:   [10] col(_9226,[[8|...],...|...],[5,4|...]) at c:/users/ramip/onedrive/documents/code/prolog/fing-prolog2021/lab1/ej1.pl:61
+ERROR:    [9] <user>
+   Exception: (12) col(_8110, [[7, 9, 3]], _9478) ? 
+
+col(N,[[8,-10,1],[5,4,2], [7,9,3]],[8,-10,1]). 
+ERROR: Arguments are not sufficiently instantiated
+ERROR: In:
+ERROR:   [13] enesimo([7,9|...],_2506,_2508)
+ERROR:   [12] col(_2544,[[7|...]],_2548) at c:/users/ramip/onedrive/documents/code/prolog/fing-prolog2021/lab1/ej1.pl:60   
+ERROR:   [11] col(_2584,[[5|...],...],_2588) at c:/users/ramip/onedrive/documents/code/prolog/fing-prolog2021/lab1/ej1.pl:61
+ERROR:   [10] col(_2630,[[8|...],...|...],[8,-10|...]) at c:/users/ramip/onedrive/documents/code/prolog/fing-prolog2021/lab1/ej1.pl:61
+ERROR:    [9] <user>
+   Exception: (12) col(_1512, [[7, 9, 3]], _2882) ? 
+
+col(N,[[8,-10,1],[5,4,2], [7,9,3]],[-10, 4, 9]).  
+ERROR: Arguments are not sufficiently instantiated
+ERROR: In:
+ERROR:   [13] enesimo([7,9|...],_9854,_9856)
+ERROR:   [12] col(_9892,[[7|...]],_9896) at c:/users/ramip/onedrive/documents/code/prolog/fing-prolog2021/lab1/ej1.pl:60
+ERROR:   [11] col(_9932,[[5|...],...],_9936) at c:/users/ramip/onedrive/documents/code/prolog/fing-prolog2021/lab1/ej1.pl:61
+ERROR:   [10] col(_9978,[[8|...],...|...],[-10,4|...]) at c:/users/ramip/onedrive/documents/code/prolog/fing-prolog2021/lab1/ej1.pl:61
+ERROR:    [9] <user>
+---------------------------------------------------------------
+---------------------------------------------------------------
+
+fila(1,[[8,-10,1],[5,4,2], [7,9,3]],C). 
+C = [8, -10, 1] ;
+
+fila(1,[[8,-10,1],[5,4,2], [3,5,1]],[0,2,1]). 
+false.
+
+fila(4,[[8,-10,1],[5,4,2], [3,5,1]],[0,2,1]). 
+false.
+
+fila(-5,[[8,-10,1],[5,4,2], [3,5,1]],[0,2,1]). 
+false.
+
+fila(2,[[8,-10,1],[], [3,5,1]],[0,2,1]).       
+false.
+
+fila(2,[[8,-10,1],[9,0], [3,5,1]],[0,2,1]). 
+false.
+
+fila(2,[[8,-10,1],[9,0], [3,5,1]],F).        
+false.
+
+HHMMMMM!!!! *THINKING EMOJI*
+fila(1,[[8,-10,1],[5,4,2], []],C).      
+C = [8, -10, 1] 
+
+fila(2,[[8,-10,1],[9,0], [3,5,1]],F).        
+false.
+
+fila(3,[[],[4,2], [1]],C).                
+false.
+
+fila(N,[[8,-10,1],[9,0], [3,5,1]],[0,2,1]). 
+ERROR: Arguments are not sufficiently instantiated
+ERROR: In:
+ERROR:   [10] fila(_13398,[[8|...],...|...],[0,2|...])
+ERROR:    [9] <user>
+
+---------------------------------------------------------------
+---------------------------------------------------------------
+
+numeros(4,7,L).   
+L = [4, 5, 6, 7] 
+
+numeros(-6,3,L). 
+L = [-6, -5, -4, -3, -2, -1, 0, 1, 2|...] ;
+
+ numeros(-6,-3,L). 
+L = [-6, -5, -4, -3] ;
+
+numeros(-1,-3,L).  
+false.
+
+numeros(31,3,L).  
+false.
+
+numeros(1,3,[1,2,3]). 
+true 
+
+numeros(1,3,[]).      
+false.
+
+numeros(4,4,L).  
+L = [4] ;
+
+numeros(I,F,[]). 
+false.
