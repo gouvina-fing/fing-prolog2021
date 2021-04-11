@@ -8,7 +8,7 @@
 pertenece(X,[X|_]).
 pertenece(X,[_|T]):- pertenece(X,T).
 
-% borrarH(+H, +L1, ?L2) <- L2 resulta de eliminar todas las ocurrencias H de la lista L2
+% borrarH(+H, +L1, ?L2) <- L2 resulta de eliminar todas las ocurrencias H de la lista L1
 borrarH(_, [], []). 
 borrarH(H, [H|L1], L2) :- borrarH(H, L1, L2).
 borrarH(H, [Y|L1], [Y|L2]) :- Y \= H, borrarH(H, L1, L2).

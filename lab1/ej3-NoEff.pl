@@ -28,7 +28,7 @@ es_adyacente(pos(F1,C), pos(F2, C)) :- F2 is F1 + 1.
 % siguiente_paso(+L, ?H) -> H es la cabeza de L
 siguiente_paso([H|_], H).
 
-% secuencia(+N, +Inicial, +Final, ?Caminito) -> Caminito es una secuencia de posiciones de la forma pos(Fila,Columna), dentro de la matriz NxN
+% secuencia(+Inicial, +Final, +SinColocar, +Acumulador, ?Caminito) -> Caminito es una secuencia de posiciones de la forma pos(Fila,Columna), dentro de la matriz NxN
 %                                               comienza en Inicial y termina en Final
 % de esta forma logro una secuencia que siempre empieza en Inicial, termina en Final, y no pasa 2 veces por la misma celda
 secuencia(Inicial, _, _, [H|L], [Inicial, H|L] ).
