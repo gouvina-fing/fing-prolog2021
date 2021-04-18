@@ -114,10 +114,10 @@ tablero(N, [pos(F,N)|L], T) :- F < N, F2 is F + 1, tablero(N, [pos(F2,1),pos(F,N
 tablero(N, [pos(F,C)|L], T) :- C < N, C2 is C + 1, tablero(N, [pos(F,C2),pos(F,C)|L], T). 
 
 % adyacente(+A, ?B, +N) -> sean A y B dos posiciones de la forma pos(Fila, Columna). B es una celda adyacente a A. Es decir que comparten fila o columna con distancia de 1. N es el limite de la tabla.
-adyacente(pos(F,C1), pos(F, C2),_) :- C2 is C1 - 1, C2>0.
-adyacente(pos(F,C1), pos(F, C2),N) :- C2 is C1 + 1, C1<N.
-adyacente(pos(F1,C), pos(F2, C),_) :- F2 is F1 - 1, F2>0.
-adyacente(pos(F1,C), pos(F2, C),N) :- F2 is F1 + 1, F1<N.
+adyacente(pos(F,C1), pos(F, C2), _) :- C2 is C1 - 1, C2>0.
+adyacente(pos(F,C1), pos(F, C2), N) :- C2 is C1 + 1, C1<N.
+adyacente(pos(F1,C), pos(F2, C), _) :- F2 is F1 - 1, F2>0.
+adyacente(pos(F1,C), pos(F2, C), N) :- F2 is F1 + 1, F1<N.
 
 % secuencia(+Inicial, +Celdas, +Muros, +N, +Acumulador, ?Caminito) -> Caminito es una secuencia de posiciones de la forma pos(Fila,Columna), dentro de la matriz NxN
 %                                                                     comienza en Inicial y termina en Final.
