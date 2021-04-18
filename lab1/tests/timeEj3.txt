@@ -10,7 +10,7 @@ false.
 -----------------------------------------------------------------------
 %Unico camino entre incio y final
 
-time(caminito(6,[pos(1,2), pos(1,3), pos(1,4), pos(1,5), pos(2,2), pos(2,3), pos(2,4), pos(2,4), pos(3,2), pos(3,3), 
+time(caminito(6,[pos(1,2), pos(1,3), pos(1,4), pos(1,5), pos(2,2), pos(2,3), pos(2,4), pos(2,4), pos(3,2), pos(3,3),
 pos(3,4), pos(3,5), pos(4,2), pos(4,3), pos(4,4), pos(4,5),pos(5,2), pos(5,3), pos(5,4), pos(5,5)],pos(1,1),pos(6,6),C)).  
 % 680 inferences, 0.000 CPU in 0.000 seconds (?% CPU, Infinite Lips)
 C = [pos(1, 1), pos(2, 1), pos(3, 1), pos(4, 1), pos(5, 1), pos(6, 1), pos(6, 2), pos(6, 3), pos(6, 4), pos(6, 5), pos(6, 6)] ;
@@ -32,12 +32,12 @@ false.
 -----------------------------------------------------------------------
 %Inicio es un muro
 time(caminito(5,[pos(1,1)],pos(1,1),pos(5,1),Caminito)).                                                       
-% 88 inferences, 0.000 CPU in 0.000 seconds (?% CPU, Infinite Lips)
+% 10 inferences, 0.000 CPU in 0.000 seconds (?% CPU, Infinite Lips)
 false.
 
 %Final es un muro
 time(caminito(5,[pos(5,1)],pos(1,1),pos(5,1),Caminito)). 
-% 84 inferences, 0.000 CPU in 0.000 seconds (?% CPU, Infinite Lips)
+% 4 inferences, 0.000 CPU in 0.000 seconds (?% CPU, Infinite Lips)
 false.
 
 -----------------------------------------------------------------------
