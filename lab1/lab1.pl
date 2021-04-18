@@ -140,8 +140,8 @@ secuencia(Inicial, Celdas, Muros, N, [A|L], Caminito):-
 %                                                   La lista de  Muros  está especificada también como una lista de posiciones.
 caminito(N, _, Inicial, Inicial, [Inicial]):-  N > 0.
 caminito(N, Muros, Inicial, Final, Caminito) :-
-    tablero(N, [pos(1,1)], T),
-    elegir(Final, T, Celdas),
     not(pertenece(Final, Muros)),
     not(pertenece(Inicial, Muros)),
+    tablero(N, [pos(1,1)], T),
+    elegir(Final, T, Celdas),
     secuencia(Inicial, Celdas, Muros, N, [Final], Caminito).
