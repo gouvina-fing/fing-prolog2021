@@ -10,7 +10,7 @@ crear_fila(1, E, [E]).
 crear_fila(N, E, [E|T]) :- N > 1, N2 is N-1, crear_fila(N2, E, T).
 
 % generar_transpuesta(+A, +L, +N, ?C) - Genera matriz transpuesta A a partir de matriz C, siendo L un acumulador para iterar y N la cantidad de filas de C
-generar_transpuesta(A, N, N, [C]) :- col(_, A, C).
+generar_transpuesta(A, N, N, [C]) :- col(N, A, C).
 generar_transpuesta(A, L, N, [C1|C2]) :- col(L, A, C1), L2 is L+1, generar_transpuesta(A, L2, N, C2).
 
 % largo(+L, ?N) - Comprueba si la lista L tiene N elementos
@@ -82,6 +82,10 @@ calculo_multiplos(H, N, [H1|L1], [H1|L1]) :- H2 is H1 + H, H2 >= N.
 % depurarH(+H, +L, ?L2). <- La lista L2 resulta de eliminar todos los numeros multiplos de H en la lista L
 depurarH(_, _, [], []).
 depurarH(H, N, [H1|L], L2) :- calculo_multiplos(H, N, [], M), borrar(M, [H1|L], L2).
+
+% IDEA
+% depurarH(H, N, [H1|L], L2) :- 0 is mod(H1, H), depurarH(H, N, L, L2).
+% depurarH(H, N, [H1|L], [H1|L2]) :- not(0 is mod(H1, H)), depurarH(H, N, L, L2).
 
 % depurar(+L1, ?L2) <- La lista L2 es la lista L1 que solo contiene a los primos.
 depurar(N, [H|L], [H|L]) :- H2 is H * H,  not(H2 < N).
