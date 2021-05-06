@@ -97,7 +97,7 @@ depurar(N, [H|L], [H|L2]) :- H2 is H * H, H2 < N, depurarH(H, N, L, L1), depurar
 primos(0, []).
 primos(1, []).
 primos(2, []).
-primos(N, P) :- numeros(2, N, L), depurar(N, L, P).
+primos(N, P) :- N1 is N - 1, numeros(2, N1, L), depurar(N, L, P).
 
 % --------------------------
 % Ejercicio 3
