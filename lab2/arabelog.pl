@@ -1,8 +1,8 @@
 % Tablero:
 % -> Grilla 5x5: m(f(-,-,-,-,-),f(-,-,-,-,-),f(-,-,-,-,-),f(-,-,-,-,-),f(-,-,-,-,-))
-% -> Jugador X: negro
-% -> Jugador O: blanco
-% -> Vacío: vacio
+% -> Jugador X: x
+% -> Jugador O: o
+% -> Vacío: -
 % Estado:
 % -> estado(Tablero, A, B, C, D, E)
 % -> Tablero es la grilla 5x5
@@ -14,21 +14,65 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PREDICADOS AUXILIARES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% valor_celda(+Matriz, +I, +J, -Valor): Dada una matriz functor y coordenadas I y J, devuelve el valor de dicha celda
+valor_celda(Matriz, I, J, Valor) :-
+    arg(I, Matriz, Fila),
+    arg(J, Fila, Valor).
+
+% modificar_celda(Matriz, I, J, Valor): Dada una matriz functor, coordenadas I y J, y un Valor, devuelve la matriz resultante
+% de sustituir el valor en la celda (I,J) con el valor Valor (modifica la matriz original)
+modificar_celda(Matriz, I, J, Valor) :-
+    arg(I, Matriz, Fila),
+    setarg(J, Fila, Valor),
+    setarg(I, Matriz, Fila).
+
+% chequear_captura(Matriz, I, J): Dada una matriz functor y coordenadas I y J, chequea si la pieza en (I,J) es capturada
+% tanto horizontal como verticalmente, sin importar el jugador.
+chequear_captura(Matriz, I, J) :-
+    valor_celda(Matriz, I, J, x),
+    valor_celda(Matriz, I, J2, o), J2 is J-1,
+    valor_celda(Matriz, I, J3, o), J3 is J+1.
+chequear_captura(Matriz, I, J) :-
+    valor_celda(Matriz, I, J, x),
+    valor_celda(Matriz, I2, J, o), I2 is I-1,
+    valor_celda(Matriz, I3, J, o), I3 is I+1.
+chequear_captura(Matriz, I, J) :-
+    valor_celda(Matriz, I, J, o),
+    valor_celda(Matriz, I, J2, x), J2 is J-1,
+    valor_celda(Matriz, I, J3, x), J3 is J+1.
+chequear_captura(Matriz, I, J) :-
+    valor_celda(Matriz, I, J, o),
+    valor_celda(Matriz, I2, J, x), I2 is I-1,
+    valor_celda(Matriz, I3, J, x), I3 is I+1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PREDICADOS PRINCIPALES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % hay_movimiento(+Estado,+Jugador): es exitoso si hay algún movimiento posible para el jugador
-hay_movimiento(Estado, Jugador).
+% hay_movimiento(Estado, Jugador).
 
 % hay_posible_captura(+Estado, +Jugador): dado un Estado y un jugador, veo si alguno de los movimientos que puede realizar lleva a una captura
-hay_posible_captura(Estado, Jugador).
+% hay_posible_captura(Estado, Jugador).
 
+% hacer_movimiento((m(f(x,o,x,o,x),f(o,x,o,x,o),f(x,o,-,o,x),f(o,x,o,x,o),f(x,o,x,o,x)),0,0,0,0,2),3,2,3,3,normal,e).
 % Hace el movimiento a partir del Estado inicial del tablero, las coordenadas origen y destino y el tipo de movimiento
 % el tipo de movimiento puede ser normal o con_captura. En el segundo caso, el movimiento debe incluir una captura, o fallar.
-% Tablero y Tablero2 tiene el mismo término, solamente se utiliza para poder consultar la variable de salida desde el bridge
-% hacer_movimiento(+Tablero, +FilaOrigen,+ColumnaOrigen,+FilaDestino,+ColumnaDestino,+TipoMovimiento,-Estado2).
-hacer_movimiento(Tablero, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino, TipoMovimiento, Estado2).
+% Estado y Estado2 tienen el mismo término, solamente se utiliza para poder consultar la variable de salida desde el bridge
+% hacer_movimiento(+Estado, +FilaOrigen,+ColumnaOrigen,+FilaDestino,+ColumnaDestino,+TipoMovimiento,-Estado2).
+hacer_movimiento(Estado, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino, TipoMovimiento, Estado2) :-
+    % Validación de movimiento
+    arg(1, Estado, Tablero), % 1. Obtener tablero
+    valor_celda(Tablero, FilaOrigen, ColumnaOrigen, Origen), % 2. Obtener valor de casilla origen
+    (Origen = x ; Origen = o), % 3. Chequear que la casilla origen no está vacía
+    valor_celda(Tablero, FilaDestino, ColumnaDestino, -), % 4. Chequear que la casilla destino esta vacía
+    % Realización de movimiento
+    copy_term(Estado, Estado2), % 1. Copiar estado2 para no sobreescribirlo
+    arg(1, Estado, Tablero), % 2. Obtener tablero de estado2
+    modificar_celda(Tablero, FilaOrigen, ColumnaOrigen, -), % 3. Vaciar celda origen
+    modificar_celda(Tablero, FilaDestino, ColumnaDestino, Origen). % 4. Sobreescribir celda destino
+    % Realización de captura
+    %ColumnaDestino2 is ColumnaDestino + 1,
+    %(chequear_captura(Tablero, FilaDestino, ColumnaDestino2) -> modificar_celda(Tablero, FilaDestino, ColumnaDestino2, -)).
 	
 % mejor_movimiento(+Estado,+Jugador,+NivelMinimax,+Estrategia,-Estado2): dado un estado, un jugador, un nivel para minimax, y una estrategia, 
 % devuelve la mejor jugada posible. Estrategia es solamente un átomo que se le asigna para poder implementar más de una estrategia
-mejor_movimiento(Estado, Jugador, Nivel, Estrategia, Estado2)
+% mejor_movimiento(Estado, Jugador, Nivel, Estrategia, Estado2)
