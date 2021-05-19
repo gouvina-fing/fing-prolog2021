@@ -14,20 +14,25 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PREDICADOS AUXILIARES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% valor_celda(+Matriz, +I, +J, -Valor): Dada una matriz functor y coordenadas I y J, devuelve el valor de dicha celda
+% valor_celda(+Matriz, +I, +J, -Valor) -> Dada una matriz functor y coordenadas I y J, devuelve el valor de dicha celda
 valor_celda(Matriz, I, J, Valor) :-
     arg(I, Matriz, Fila),
     arg(J, Fila, Valor).
 
-% modificar_celda(Matriz, I, J, Valor): Dada una matriz functor, coordenadas I y J, y un Valor, devuelve la matriz resultante
+% modificar_celda(Matriz, I, J, Valor) -> Dada una matriz functor, coordenadas I y J, y un Valor, devuelve la matriz resultante
 % de sustituir el valor en la celda (I,J) con el valor Valor (modifica la matriz original)
 modificar_celda(Matriz, I, J, Valor) :-
     arg(I, Matriz, Fila),
     setarg(J, Fila, Valor),
     setarg(I, Matriz, Fila).
 
-% chequear_captura(Matriz, I, J): Dada una matriz functor y coordenadas I y J, chequea si la pieza en (I,J) es capturada
+% chequear_captura(Matriz, I, J) -> Dada una matriz functor y coordenadas I y J, chequea si la pieza en (I,J) es capturada
 % tanto horizontal como verticalmente, sin importar el jugador.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ESTO ES INEFICIENTE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 chequear_captura(Matriz, I, J) :-
     valor_celda(Matriz, I, J, x),
     valor_celda(Matriz, I, J2, o), J2 is J-1,
@@ -45,10 +50,24 @@ chequear_captura(Matriz, I, J) :-
     valor_celda(Matriz, I2, J, x), I2 is I-1,
     valor_celda(Matriz, I3, J, x), I3 is I+1.
 
+% hay_movimiento_celda(+Tablero, I, J) -> es exitoso si hay algún movimiento posible desde la celda (I,J)
+hay_movimiento_celda(Tablero, I, J) :- J < 5, J1 is J + 1, valor_celda(Tablero, I, J1, -), !. % misma fila, columna derecha
+hay_movimiento_celda(Tablero, I, J) :- J > 1, J1 is J - 1, valor_celda(Tablero, I, J1, -), !. % misma fila, columna izquierda
+hay_movimiento_celda(Tablero, I, J) :- I < 5, I1 is I + 1, valor_celda(Tablero, I1, J, -), !. % misma columna, fila inferior
+hay_movimiento_celda(Tablero, I, J) :- I > 1, I1 is I - 1, valor_celda(Tablero, I1, J, -), !. % misma columna, fila superior
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PREDICADOS PRINCIPALES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % hay_movimiento(+Estado,+Jugador): es exitoso si hay algún movimiento posible para el jugador
-% hay_movimiento(Estado, Jugador).
+% dos caminos:
+% - agarro todas mis piezas y busco si alguna tiene una casilla vacia a la que ir
+% - agarro todas las casillas vacias y veo si al rededor de ella hay una pieza mia
+hay_movimiento(Estado, Jugador) :-
+    arg(1, Estado, Tablero),
+    valor_celda(Tablero, I,J, Jugador),
+    hay_movimiento_celda(Tablero, I, J),
+    !.
 
 % hay_posible_captura(+Estado, +Jugador): dado un Estado y un jugador, veo si alguno de los movimientos que puede realizar lleva a una captura
 % hay_posible_captura(Estado, Jugador).
