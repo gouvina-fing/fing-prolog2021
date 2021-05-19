@@ -45,6 +45,39 @@ chequear_captura(Matriz, I, J) :-
     valor_celda(Matriz, I2, J, x), I2 is I-1,
     valor_celda(Matriz, I3, J, x), I3 is I+1.
 
+% ver_adyacentes(Matriz, I, J, tipo, M,N): Dada una matriz revisa si la pieza en coordenadas I,J es adyacente a una pieza
+% del tipo tipo y da sus coordenadas en M,N.
+ver_adyacentes(Matriz, I, J, Tipo, I, J2):-
+    valor_celda(Matriz, I, J2, Tipo), J2 is J-1.
+ver_adyacentes(Matriz, I, J, Tipo, I, J3):-
+    valor_celda(Matriz, I, J3, Tipo), J3 is J+1.
+ver_adyacentes(Matriz, I, J, Tipo, I2, J):-
+    valor_celda(Matriz, I2, J, Tipo), I2 is I-1.
+ver_adyacentes(Matriz, I, J, Tipo, I3, J):-
+    valor_celda(Matriz, I3, J, Tipo), I3 is I+1.
+
+capturable(Matriz,I,J, X):-
+    valor_celda(Matriz, I, J, o),
+    ver_adyacentes(Matriz, I, J, x,M,_),
+    ver_adyacentes(Matriz, I, J, -,M,R),
+    ver_adyacentes(Matriz, M, R , x,_,_).
+capturable(Matriz,I,J, X):-
+    valor_celda(Matriz, I, J, o),
+    ver_adyacentes(Matriz, I, J, x,_,N),
+    ver_adyacentes(Matriz, I, J, -,R,N),
+    ver_adyacentes(Matriz, R, N, x,_,_).
+capturable(Matriz,I,J, O):-
+    valor_celda(Matriz, I, J, x),
+    ver_adyacentes(Matriz, I, J, o,M,_),
+    ver_adyacentes(Matriz, I, J, -,M,R),
+    ver_adyacentes(Matriz, M, R, o ,_,_).
+capturable(Matriz,I,J, O):-
+    valor_celda(Matriz, I, J, x),
+    ver_adyacentes(Matriz, I, J, o,_,N),
+    ver_adyacentes(Matriz, I, J, -,R,N),
+    ver_adyacentes(Matriz, R, N, o,_,_).
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PREDICADOS PRINCIPALES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % hay_movimiento(+Estado,+Jugador): es exitoso si hay algún movimiento posible para el jugador
@@ -52,6 +85,9 @@ chequear_captura(Matriz, I, J) :-
 
 % hay_posible_captura(+Estado, +Jugador): dado un Estado y un jugador, veo si alguno de los movimientos que puede realizar lleva a una captura
 % hay_posible_captura(Estado, Jugador).
+hay_posible_captura((Tablero, _, _, _, _, 2), Jugador):-
+   capturable(Tablero,I,J, Jugador).
+
 
 % hacer_movimiento((m(f(x,o,x,o,x),f(o,x,o,x,o),f(x,o,-,o,x),f(o,x,o,x,o),f(x,o,x,o,x)),0,0,0,0,2),3,2,3,3,normal,e).
 % Hace el movimiento a partir del Estado inicial del tablero, las coordenadas origen y destino y el tipo de movimiento
