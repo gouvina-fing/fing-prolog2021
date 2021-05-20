@@ -53,13 +53,13 @@ chequear_captura(Matriz, I, J) :-
 % ver_adyacentes(Matriz, I, J, Tipo, M,N): Dada una matriz revisa si la pieza en coordenadas I,J es adyacente a una pieza
 % del tipo tipo y da sus coordenadas en M,N.
 ver_adyacentes(Matriz, I, J, Tipo, I, J2):-
-    valor_celda(Matriz, I, J2, Tipo), J2 is J-1.
+    J2 is J-1, valor_celda(Matriz, I, J2, Tipo).
 ver_adyacentes(Matriz, I, J, Tipo, I, J3):-
-    valor_celda(Matriz, I, J3, Tipo), J3 is J+1.
+    J3 is J+1, valor_celda(Matriz, I, J3, Tipo).
 ver_adyacentes(Matriz, I, J, Tipo, I2, J):-
-    valor_celda(Matriz, I2, J, Tipo), I2 is I-1.
+    I2 is I-1, valor_celda(Matriz, I2, J, Tipo).
 ver_adyacentes(Matriz, I, J, Tipo, I3, J):-
-    valor_celda(Matriz, I3, J, Tipo), I3 is I+1.
+    I3 is I+1, valor_celda(Matriz, I3, J, Tipo).
 
 % capturable(Matriz, I, J, Tipo):Dada una matriz revisa si la pieza en I,J es capturable por el tipo de pieza Tipo
 capturable(Matriz,I,J, x):-
@@ -72,17 +72,17 @@ capturable(Matriz,I,J, x):-
     ver_adyacentes(Matriz, I, J, x,_,N),
     ver_adyacentes(Matriz, I, J, -,R,N),
     ver_adyacentes(Matriz, R, N, x,_,_).
-capturable(Matriz,I,J, x):-
+capturable(Matriz,I,J, o):-
     valor_celda(Matriz, I, J, x),
     ver_adyacentes(Matriz, I, J, o,M,_),
     ver_adyacentes(Matriz, I, J, -,M,R),
     ver_adyacentes(Matriz, M, R, o ,_,_).
-capturable(Matriz,I,J, x):-
+capturable(Matriz,I,J, o):-
     valor_celda(Matriz, I, J, x),
     ver_adyacentes(Matriz, I, J, o,_,N),
     ver_adyacentes(Matriz, I, J, -,R,N),
     ver_adyacentes(Matriz, R, N, o,_,_).
-=======
+
 % hay_movimiento_celda(+Tablero, I, J) -> es exitoso si hay algún movimiento posible desde la celda (I,J)
 hay_movimiento_celda(Tablero, I, J) :- J < 5, J1 is J + 1, valor_celda(Tablero, I, J1, -), !. % misma fila, columna derecha
 hay_movimiento_celda(Tablero, I, J) :- J > 1, J1 is J - 1, valor_celda(Tablero, I, J1, -), !. % misma fila, columna izquierda
@@ -104,9 +104,11 @@ hay_movimiento(Estado, Jugador) :-
 
 % hay_posible_captura(+Estado, +Jugador): dado un Estado y un jugador, veo si alguno de los movimientos que puede realizar lleva a una captura
 % hay_posible_captura(Estado, Jugador).
-hay_posible_captura((Tablero, _, _, _, _, 2), Jugador):-
-   capturable(Tablero,I,J, Jugador),
-   !.
+%hay_posible_captura((Tablero, _, _, _, _, 2), Jugador):-
+hay_posible_captura(Estado, Jugador):-
+    arg(1, Estado, Tablero),
+    capturable(Tablero,I,J, Jugador),
+    !.
 
 
 % hacer_movimiento((m(f(x,o,x,o,x),f(o,x,o,x,o),f(x,o,-,o,x),f(o,x,o,x,o),f(x,o,x,o,x)),0,0,0,0,2),3,2,3,3,normal,e).
