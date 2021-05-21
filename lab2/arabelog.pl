@@ -61,33 +61,33 @@ ver_adyacentes(Matriz, I, J, Tipo, I2, J):-
 ver_adyacentes(Matriz, I, J, Tipo, I3, J):-
     I3 is I+1, valor_celda(Matriz, I3, J, Tipo).
 
-% capturable(Matriz, I, J, Tipo):Dada una matriz revisa si la pieza en I,J es capturable por el tipo de pieza Tipo
-capturable(Matriz,I,J, x):-
+% capturable(Matriz, Tipo):Dada una matriz revisa si la pieza en I,J es capturable por el tipo de pieza Tipo
+capturable(Matriz, x):-
     valor_celda(Matriz, I, J, o),
     ver_adyacentes(Matriz, I, J, x,M,_),
     ver_adyacentes(Matriz, I, J, -,M,R),
     ver_adyacentes(Matriz, M, R , x,_,_).
-capturable(Matriz,I,J, x):-
+capturable(Matriz, x):-
     valor_celda(Matriz, I, J, o),
     ver_adyacentes(Matriz, I, J, x,_,N),
     ver_adyacentes(Matriz, I, J, -,R,N),
     ver_adyacentes(Matriz, R, N, x,_,_).
-capturable(Matriz,I,J, o):-
+capturable(Matriz, o):-
     valor_celda(Matriz, I, J, x),
     ver_adyacentes(Matriz, I, J, o,M,_),
     ver_adyacentes(Matriz, I, J, -,M,R),
     ver_adyacentes(Matriz, M, R, o ,_,_).
-capturable(Matriz,I,J, o):-
+capturable(Matriz, o):-
     valor_celda(Matriz, I, J, x),
     ver_adyacentes(Matriz, I, J, o,_,N),
     ver_adyacentes(Matriz, I, J, -,R,N),
     ver_adyacentes(Matriz, R, N, o,_,_).
 
 % hay_movimiento_celda(+Tablero, I, J) -> es exitoso si hay algún movimiento posible desde la celda (I,J)
-hay_movimiento_celda(Tablero, I, J) :- J < 5, J1 is J + 1, valor_celda(Tablero, I, J1, -), !. % misma fila, columna derecha
-hay_movimiento_celda(Tablero, I, J) :- J > 1, J1 is J - 1, valor_celda(Tablero, I, J1, -), !. % misma fila, columna izquierda
-hay_movimiento_celda(Tablero, I, J) :- I < 5, I1 is I + 1, valor_celda(Tablero, I1, J, -), !. % misma columna, fila inferior
-hay_movimiento_celda(Tablero, I, J) :- I > 1, I1 is I - 1, valor_celda(Tablero, I1, J, -), !. % misma columna, fila superior
+hay_movimiento_celda(Tablero, I, J) :- J1 is J + 1, valor_celda(Tablero, I, J1, -). % misma fila, columna derecha
+hay_movimiento_celda(Tablero, I, J) :- J1 is J - 1, valor_celda(Tablero, I, J1, -). % misma fila, columna izquierda
+hay_movimiento_celda(Tablero, I, J) :- I1 is I + 1, valor_celda(Tablero, I1, J, -). % misma columna, fila inferior
+hay_movimiento_celda(Tablero, I, J) :- I1 is I - 1, valor_celda(Tablero, I1, J, -). % misma columna, fila superior
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PREDICADOS PRINCIPALES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -103,11 +103,9 @@ hay_movimiento(Estado, Jugador) :-
     !.
 
 % hay_posible_captura(+Estado, +Jugador): dado un Estado y un jugador, veo si alguno de los movimientos que puede realizar lleva a una captura
-% hay_posible_captura(Estado, Jugador).
-%hay_posible_captura((Tablero, _, _, _, _, 2), Jugador):-
 hay_posible_captura(Estado, Jugador):-
     arg(1, Estado, Tablero),
-    capturable(Tablero,I,J, Jugador),
+    capturable(Tablero, Jugador),
     !.
 
 
