@@ -56,22 +56,22 @@ hay_posible_captura_celda(Matriz, I, J, Jugador) :- % captura vertical
     !.
 
 % capturar_norte(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al norte de (I,J) es capturable
-capturar_norte(Tablero, I, J, Jugador, JugadorOpuesto, I2) :-
+capturar_norte(Tablero, I, J, Jugador, JugadorOpuesto, I2, exito) :-
     I2 is I-1, I3 is I-2,
     valor_celda(Tablero, I2, J, JugadorOpuesto),
     valor_celda(Tablero, I3, J, Jugador).
 % capturar_sur(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al sur de (I,J) es capturable
-capturar_sur(Tablero, I, J, Jugador, JugadorOpuesto, I2) :-
+capturar_sur(Tablero, I, J, Jugador, JugadorOpuesto, I2, exito) :-
     I2 is I+1, I3 is I+2,
     valor_celda(Tablero, I2, J, JugadorOpuesto),
     valor_celda(Tablero, I3, J, Jugador).
 % capturar_este(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al oeste de (I,J) es capturable
-capturar_oeste(Tablero, I, J, Jugador, JugadorOpuesto, J2) :-
+capturar_oeste(Tablero, I, J, Jugador, JugadorOpuesto, J2, exito) :-
     J2 is J-1, J3 is J-2,
     valor_celda(Tablero, I, J2, JugadorOpuesto),
     valor_celda(Tablero, I, J3, Jugador).
 % capturar_este(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al este de (I,J) es capturable
-capturar_este(Tablero, I, J, Jugador, JugadorOpuesto, J2) :-
+capturar_este(Tablero, I, J, Jugador, JugadorOpuesto, J2, exito) :-
     J2 is J+1, J3 is J+2,
     valor_celda(Tablero, I, J2, JugadorOpuesto),
     valor_celda(Tablero, I, J3, Jugador).
@@ -107,6 +107,7 @@ hacer_movimiento(Estado, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino,
     valor_celda(Tablero, FilaOrigen, ColumnaOrigen, Jugador), % 2. Obtener valor de casilla origen
     (Jugador = x ; Jugador = o), % 3. Chequear que la casilla origen no está vacía
     valor_celda(Tablero, FilaDestino, ColumnaDestino, -), % 4. Chequear que la casilla destino esta vacía
+    (TipoMovimiento = con_captura -> hay_posible_captura(Estado, Jugador) ; true), % 5. Chequear que haya captura posible si el movimiento es con_captura
     % Realización de movimiento
     copy_term(Estado, Estado2), % 1. Copiar estado2 para no sobreescribirlo
     arg(1, Estado, Tablero), % 2. Obtener tablero de estado2
@@ -114,10 +115,11 @@ hacer_movimiento(Estado, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino,
     modificar_celda(Tablero, FilaDestino, ColumnaDestino, Jugador), % 4. Sobreescribir celda destino
     % Realización de captura(s)
     jugador_opuesto(Jugador, JugadorOpuesto),
-    (capturar_norte(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, FilaCapturada1) -> modificar_celda(Tablero, FilaCapturada1, ColumnaDestino, -) ; true),
-    (capturar_sur(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, FilaCapturada2) -> modificar_celda(Tablero, FilaCapturada2, ColumnaDestino, -) ; true),
-    (capturar_oeste(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, ColumnaCapturada1) -> modificar_celda(Tablero, FilaDestino, ColumnaCapturada1, -) ; true),
-    (capturar_este(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, ColumnaCapturada2) -> modificar_celda(Tablero, FilaDestino, ColumnaCapturada2, -) ; true).
+    (capturar_norte(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, FilaCapturada1, Exito) -> modificar_celda(Tablero, FilaCapturada1, ColumnaDestino, -) ; true),
+    (capturar_sur(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, FilaCapturada2, Exito) -> modificar_celda(Tablero, FilaCapturada2, ColumnaDestino, -) ; true),
+    (capturar_oeste(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, ColumnaCapturada1, Exito) -> modificar_celda(Tablero, FilaDestino, ColumnaCapturada1, -) ; true),
+    (capturar_este(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, ColumnaCapturada2, Exito) -> modificar_celda(Tablero, FilaDestino, ColumnaCapturada2, -) ; true),
+    (TipoMovimiento = con_captura -> Exito == exito; true).
 	
 % mejor_movimiento(+Estado,+Jugador,+NivelMinimax,+Estrategia,-Estado2): dado un estado, un jugador, un nivel para minimax, y una estrategia, 
 % devuelve la mejor jugada posible. Estrategia es solamente un átomo que se le asigna para poder implementar más de una estrategia
