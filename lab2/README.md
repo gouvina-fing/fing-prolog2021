@@ -48,6 +48,7 @@ En la interfaz del juego tenemos los siguiente componentes:
 
 - Un indicador para cada jugador que indica/permite seleccionar si es Humano o Máquina, en negro la cantidad de fichas que tiene en el tablero, y en rojo
 los turnos seguidos que ha perdido por no poder mover, y la cantidad de movimientos sin capturar que lleva.
+- Si el jugador es máquina, permite seleccionar la estrategia, y el nivel para Minimax
 - Un indicador de a qué jugador le toca jugar
 - Un indicador de la etapa en la que se está jugando (1/Insertar fichas, 2/Mover fichas)
 - Un botón "Jugar" para reiniciar el juego

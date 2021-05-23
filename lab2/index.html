@@ -51,6 +51,14 @@
               <button type="button" class="btn btn-danger">
 			          <span class="badge badge-light">{{jugadas_sin_capturarX}}</span>
 			        </button>
+
+                <select v-model="estrategiaX" v-if="jugadorX === 'M'">
+                  <option value="minimax">minimax</option>
+                  <option value="baseia">baseia</option>
+                  <option value="dummy" selected>dummy</option>
+                  </select>
+                <input v-model="nivel_minimaxX" size="1"  v-if="jugadorX === 'M'">
+
               <label>&nbsp &nbsp Jugador 2(O) &nbsp </label>
               <button type="button" class="btn btn-primary" :disabled="jugadorO === 'H'" @click="setJugadorO('H')">H</button>
               <button type="button" class="btn btn-primary" :disabled="jugadorO === 'M'" @click="setJugadorO('M')">M</button>
@@ -63,6 +71,16 @@
               <button type="button" class="btn btn-danger">
 			          <span class="badge badge-light">{{jugadas_sin_capturarO}}</span>
 			        </button>
+
+              <select v-model="estrategiaO" v-if="jugadorO === 'M'">
+                <option value="minimax">minimax</option>
+                <option value="baseia">baseia</option>
+                <option value="dummy" selected>dummy</option>
+              </select>
+              <input v-model="nivel_minimaxO" size="1"  v-if="jugadorO === 'M'">
+
+
+
 
             </div>
           </div>
@@ -137,8 +155,8 @@
         // board tiene el tablero
         boardSize: 5,
         board: null,
-        jugadorX:'H',
-        jugadorO:'H',
+        jugadorX:'H', estrategiaX:null, nivel_minimaxX:3,
+        jugadorO:'H', estrategiaO:null, nivel_minimaxO:3,
         jugador_actual:'X',
         
         piezasX:0, 
@@ -149,7 +167,7 @@
         turnos_perdidosO:0,
         jugadas_sin_capturarO:0,
 
-        nivel_minimax: 3,
+        //nivel_minimax: 3,
         fase_juego:1,
         en_jugada:false,
         debe_capturar:false,
@@ -197,41 +215,8 @@
 
         /* Para pruebas */
         
-        /*
-        newBoard[0][0]='X';
-        newBoard[0][1]='O';
-        newBoard[0][2]='X';
-        newBoard[0][3]='O';
-        newBoard[0][4]='X';
         
-        newBoard[1][0]='X';
-        newBoard[1][1]='X';
-        newBoard[1][2]='X';
-        newBoard[1][3]='X';
-        newBoard[1][4]='X';
-
-        newBoard[2][0]='O';
-        newBoard[2][1]='X';
-        newBoard[2][2]='';
-        newBoard[2][3]='X';
-        newBoard[2][4]='O';
-
-        newBoard[3][0]='O';
-        newBoard[3][1]='O';
-        newBoard[3][2]='O';
-        newBoard[3][3]='O';
-        newBoard[3][4]='O';
-
-        newBoard[4][0]='O';
-        newBoard[4][1]='O';
-        newBoard[4][2]='X';
-        newBoard[4][3]='X';
-        newBoard[4][4]='O';
-       */
-
-       
-        /*
-       newBoard[0][0]='';
+        newBoard[0][0]='';
         newBoard[0][1]='';
         newBoard[0][2]='';
         newBoard[0][3]='';
@@ -239,30 +224,31 @@
         
         newBoard[1][0]='';
         newBoard[1][1]='';
-        newBoard[1][2]='O';
-        newBoard[1][3]='X';
+        newBoard[1][2]='';
+        newBoard[1][3]='';
         newBoard[1][4]='';
 
         newBoard[2][0]='';
         newBoard[2][1]='';
-        newBoard[2][2]='O';
-        newBoard[2][3]='X';
+        newBoard[2][2]='';
+        newBoard[2][3]='';
         newBoard[2][4]='';
 
-        newBoard[3][0]='X';
-        newBoard[3][1]='O';
-        newBoard[3][2]='O';
-        newBoard[3][3]='X';
+        newBoard[3][0]='';
+        newBoard[3][1]='';
+        newBoard[3][2]='';
+        newBoard[3][3]='';
         newBoard[3][4]='';
 
-        newBoard[4][0]='X';
-        newBoard[4][1]='X';
+        newBoard[4][0]='';
+        newBoard[4][1]='';
         newBoard[4][2]='';
         newBoard[4][3]='';
-        newBoard[4][4]='O';
-        */
+        newBoard[4][4]='';
+       
 
-
+       
+ 
         return newBoard;  
       },
 
@@ -283,6 +269,15 @@
       },
 
       postDatosIA() {
+        if (this.jugador_actual=='X'){
+          vnivel_minimax=this.nivel_minimaxX
+          vestrategia=this.estrategiaX
+        }
+        else{
+          vnivel_minimax=this.nivel_minimaxO
+          vestrategia=this.estrategiaO
+        }
+
         return {
           tablero: this.board,
           datos_estado:[this.turnos_perdidosX, 
@@ -290,9 +285,9 @@
                         this.jugadas_sin_capturarX, 
                         this.jugadas_sin_capturarO,
                         this.fase_juego],
-          nivel_mini_max: 3,
+          nivel_minimax: vnivel_minimax,
           jugador: this.jugador_actual,
-          estrategia:'dummy'
+          estrategia:vestrategia
         }
       },
 
@@ -394,7 +389,7 @@
               alert("La celda destino debe estar vac&iacute;")
             }
             else{ 
-              // Cuento piezas del rival antes de ejecutar el movimiento
+              // Ejecuto el movimiento del jugador
               this.api_ejecutar_movimiento(rowIndex,cellIndex);   
             }
           }
@@ -416,7 +411,7 @@
       },
 
       cambiar_turno(){
-        if (this.fase_juego==2){
+        if (this.fase_juego==2 || (this.fase_juego==1 && this.piezasX==12 && this.piezasO==12)){
           // Verifico si el rival puede hacer una jugada
           axios.post("/api/hay_movimiento",
             this.postDatosConsulta(this.rival)).then(response => {
@@ -505,6 +500,7 @@
 
       setJugadorO(symbol){
         this.jugadorO = symbol;
+
         this.resizeBoard();
       },
 
@@ -522,7 +518,7 @@
           return false;
       },
 
-      // Ejecuto el movimiento y, si es vï¿½lido, actualizo el tablero (PROLOG: ejecutar_movimiento) 
+      // Ejecuto el movimiento y, si es válido, actualizo el tablero (PROLOG: ejecutar_movimiento) 
       // Paso fila y columna +1 porque mis predicados de Prolog numeran a partir de 1 
       api_ejecutar_movimiento(rowIndex,cellIndex){
         axios.post("/api/ejecutar_movimiento", 
@@ -608,17 +604,24 @@
 
               if (this.fase_juego==1){
                 this.cambiar_turno();
+                /* Al terminar el turno, veo si no hay cambio de Fase porque se llenaron las fichas */
+                if (this.piezasX==12 && this.piezasO==12) {
+                  this.fase_juego=2;
+                }
               }
               else{
 
                 // Si hubo captura, y hay captura posible, entonces permito un nuevo movimiento, en el que debe capturar piezas
+                // Si asumimos que el jugador de la IA siempre juega todo lo que puede, esto habría que comentarlo.
                 if (this.contar_piezas_rival()< piezas_rival_antes){
                   if (this.jugador_actual=='X')
                     this.jugadas_sin_capturarX=0;
                   else
                     this.jugadas_sin_capturarO=0;
 
-                  this.control_de_posible_captura();
+                  // Si la IA no quiso seguir capturando, es porque no quiso, y pierde el turno
+                  //this.control_de_posible_captura();
+                  this.cambiar_turno();
                 }
                 else{
 
