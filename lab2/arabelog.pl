@@ -14,100 +14,77 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PREDICADOS AUXILIARES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% valor_celda(+Matriz, +I, +J, -Valor) -> Dada una matriz functor y coordenadas I y J, devuelve el valor de dicha celda
-valor_celda(Matriz, I, J, Valor) :-
-    arg(I, Matriz, Fila),
+% jugador_opuesto(?Jugador, ?JugadorOpuesto) -> Dado un tipo de Jugador, da el otro tipo de jugador en JugadorOpuesto
+jugador_opuesto(o, x).
+jugador_opuesto(x, o).
+
+% valor_celda(+Tablero, +I, +J, -Valor) -> Dada una matriz functor y coordenadas I y J, devuelve el valor de dicha celda
+valor_celda(Tablero, I, J, Valor) :-
+    arg(I, Tablero, Fila),
     arg(J, Fila, Valor).
 
-% modificar_celda(Matriz, I, J, Valor) -> Dada una matriz functor, coordenadas I y J, y un Valor, devuelve la matriz resultante
+% modificar_celda(+Tablero, +I, +J, +Valor) -> Dada una matriz functor, coordenadas I y J, y un Valor, devuelve la matriz resultante
 % de sustituir el valor en la celda (I,J) con el valor Valor (modifica la matriz original)
-modificar_celda(Matriz, I, J, Valor) :-
-    arg(I, Matriz, Fila),
+modificar_celda(Tablero, I, J, Valor) :-
+    arg(I, Tablero, Fila),
     setarg(J, Fila, Valor),
-    setarg(I, Matriz, Fila).
-
-% chequear_captura(Matriz, I, J) -> Dada una matriz functor y coordenadas I y J, chequea si la pieza en (I,J) es capturada
-% tanto horizontal como verticalmente, sin importar el jugador.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ESTO ES INEFICIENTE
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-chequear_captura(Matriz, I, J) :-
-    valor_celda(Matriz, I, J, x),
-    valor_celda(Matriz, I, J2, o), J2 is J-1,
-    valor_celda(Matriz, I, J3, o), J3 is J+1.
-chequear_captura(Matriz, I, J) :-
-    valor_celda(Matriz, I, J, x),
-    valor_celda(Matriz, I2, J, o), I2 is I-1,
-    valor_celda(Matriz, I3, J, o), I3 is I+1.
-chequear_captura(Matriz, I, J) :-
-    valor_celda(Matriz, I, J, o),
-    valor_celda(Matriz, I, J2, x), J2 is J-1,
-    valor_celda(Matriz, I, J3, x), J3 is J+1.
-chequear_captura(Matriz, I, J) :-
-    valor_celda(Matriz, I, J, o),
-    valor_celda(Matriz, I2, J, x), I2 is I-1,
-    valor_celda(Matriz, I3, J, x), I3 is I+1.
-
-% ver_adyacentes(Matriz, I, J, Tipo, M,N): Dada una matriz revisa si la pieza en coordenadas I,J es adyacente a una pieza
-% del tipo tipo y da sus coordenadas en M,N.
-ver_adyacentes(Matriz, I, J, Tipo, I, J2):-
-    J2 is J-1, valor_celda(Matriz, I, J2, Tipo).
-ver_adyacentes(Matriz, I, J, Tipo, I, J3):-
-    J3 is J+1, valor_celda(Matriz, I, J3, Tipo).
-ver_adyacentes(Matriz, I, J, Tipo, I2, J):-
-    I2 is I-1, valor_celda(Matriz, I2, J, Tipo).
-ver_adyacentes(Matriz, I, J, Tipo, I3, J):-
-    I3 is I+1, valor_celda(Matriz, I3, J, Tipo).
-
-% capturable(Matriz, Tipo):Dada una matriz revisa si la pieza en I,J es capturable por el tipo de pieza Tipo
-capturable(Matriz, x):-
-    valor_celda(Matriz, I, J, o),
-    ver_adyacentes(Matriz, I, J, x,M,_),
-    ver_adyacentes(Matriz, I, J, -,M,R),
-    ver_adyacentes(Matriz, M, R , x,_,_).
-capturable(Matriz, x):-
-    valor_celda(Matriz, I, J, o),
-    ver_adyacentes(Matriz, I, J, x,_,N),
-    ver_adyacentes(Matriz, I, J, -,R,N),
-    ver_adyacentes(Matriz, R, N, x,_,_).
-capturable(Matriz, o):-
-    valor_celda(Matriz, I, J, x),
-    ver_adyacentes(Matriz, I, J, o,M,_),
-    ver_adyacentes(Matriz, I, J, -,M,R),
-    ver_adyacentes(Matriz, M, R, o ,_,_).
-capturable(Matriz, o):-
-    valor_celda(Matriz, I, J, x),
-    ver_adyacentes(Matriz, I, J, o,_,N),
-    ver_adyacentes(Matriz, I, J, -,R,N),
-    ver_adyacentes(Matriz, R, N, o,_,_).
+    setarg(I, Tablero, Fila).
 
 % hay_movimiento_celda(+Tablero, I, J) -> es exitoso si hay algún movimiento posible desde la celda (I,J)
-hay_movimiento_celda(Tablero, I, J) :- J1 is J + 1, valor_celda(Tablero, I, J1, -). % misma fila, columna derecha
 hay_movimiento_celda(Tablero, I, J) :- J1 is J - 1, valor_celda(Tablero, I, J1, -). % misma fila, columna izquierda
-hay_movimiento_celda(Tablero, I, J) :- I1 is I + 1, valor_celda(Tablero, I1, J, -). % misma columna, fila inferior
+hay_movimiento_celda(Tablero, I, J) :- J1 is J + 1, valor_celda(Tablero, I, J1, -). % misma fila, columna derecha
 hay_movimiento_celda(Tablero, I, J) :- I1 is I - 1, valor_celda(Tablero, I1, J, -). % misma columna, fila superior
+hay_movimiento_celda(Tablero, I, J) :- I1 is I + 1, valor_celda(Tablero, I1, J, -). % misma columna, fila inferior
 
+% ver_adyacentes(Tablero, I, J, Jugador, M, N) -> Dada una matriz revisa si la pieza en coordenadas I,J es adyacente a una pieza
+% del jugador Jugador y da sus coordenadas en M,N.
+ver_adyacentes(Tablero, I, J, Jugador, I, J2):- J2 is J-1, valor_celda(Tablero, I, J2, Jugador). % misma fila, columna izquierda
+ver_adyacentes(Tablero, I, J, Jugador, I, J3):- J3 is J+1, valor_celda(Tablero, I, J3, Jugador). % misma fila, columna derecha
+ver_adyacentes(Tablero, I, J, Jugador, I2, J):- I2 is I-1, valor_celda(Tablero, I2, J, Jugador). % misma columna, fila superior
+ver_adyacentes(Tablero, I, J, Jugador, I3, J):- I3 is I+1, valor_celda(Tablero, I3, J, Jugador). % misma columna, fila inferior
+
+% hay_posible_captura_celda(Tablero, I, J, Jugador) -> Dada una matriz revisa si la pieza en I,J es capturable por el jugador Jugador
+hay_posible_captura_celda(Matriz, I, J, Jugador) :- % captura horizontal
+    ver_adyacentes(Matriz, I, J, Jugador, F, _),
+    ver_adyacentes(Matriz, I, J, -, F, C),
+    ver_adyacentes(Matriz, F, C, Jugador, _, _),
+    !.
+hay_posible_captura_celda(Matriz, I, J, Jugador) :- % captura vertical
+    ver_adyacentes(Matriz, I, J, Jugador, _, C),
+    ver_adyacentes(Matriz, I, J, Jugador, F, C),
+    ver_adyacentes(Matriz, F, C, Jugador, _, _),
+    !.
+
+% chequear_captura(+Tablero, +I, +J, +Jugador) -> Dada una matriz functor y coordenadas I y J, chequea si la pieza en (I,J) es capturada
+% tanto horizontal como verticalmente
+chequear_captura(Tablero, I, J, Jugador) :- % captura horizontal
+    J2 is J-1, valor_celda(Tablero, I, J2, Jugador), 
+    J3 is J+1, valor_celda(Tablero, I, J3, Jugador),
+    !.
+chequear_captura(Tablero, I, J, Jugador) :- % captura vertical
+    I2 is I-1, valor_celda(Tablero, I2, J, Jugador),
+    I3 is I+1, valor_celda(Tablero, I3, J, Jugador),
+    !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PREDICADOS PRINCIPALES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% hay_movimiento(+Estado,+Jugador): es exitoso si hay algún movimiento posible para el jugador
+% hay_movimiento(+Estado,+Jugador) -> es exitoso si hay algún movimiento posible para el jugador
 % dos caminos:
 % - agarro todas mis piezas y busco si alguna tiene una casilla vacia a la que ir
-% - agarro todas las casillas vacias y veo si al rededor de ella hay una pieza mia
+% - agarro todas las casillas vacias y veo si alrededor de ella hay una pieza mia
 hay_movimiento(Estado, Jugador) :-
     arg(1, Estado, Tablero),
-    valor_celda(Tablero, I,J, Jugador),
+    valor_celda(Tablero, I, J, Jugador),
     hay_movimiento_celda(Tablero, I, J),
     !.
 
-% hay_posible_captura(+Estado, +Jugador): dado un Estado y un jugador, veo si alguno de los movimientos que puede realizar lleva a una captura
+% hay_posible_captura(+Estado, +Jugador) -> dado un Estado y un jugador, veo si alguno de los movimientos que puede realizar lleva a una captura
 hay_posible_captura(Estado, Jugador):-
     arg(1, Estado, Tablero),
-    capturable(Tablero, Jugador),
+    jugador_opuesto(Jugador, JugadorOpuesto),
+    valor_celda(Tablero, I, J, JugadorOpuesto),
+    hay_posible_captura_celda(Tablero, I, J, Jugador),
     !.
-
 
 % hacer_movimiento((m(f(x,o,x,o,x),f(o,x,o,x,o),f(x,o,-,o,x),f(o,x,o,x,o),f(x,o,x,o,x)),0,0,0,0,2),3,2,3,3,normal,e).
 % Hace el movimiento a partir del Estado inicial del tablero, las coordenadas origen y destino y el tipo de movimiento
@@ -117,17 +94,18 @@ hay_posible_captura(Estado, Jugador):-
 hacer_movimiento(Estado, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino, TipoMovimiento, Estado2) :-
     % Validación de movimiento
     arg(1, Estado, Tablero), % 1. Obtener tablero
-    valor_celda(Tablero, FilaOrigen, ColumnaOrigen, Origen), % 2. Obtener valor de casilla origen
-    (Origen = x ; Origen = o), % 3. Chequear que la casilla origen no está vacía
+    valor_celda(Tablero, FilaOrigen, ColumnaOrigen, Jugador), % 2. Obtener valor de casilla origen
+    (Jugador = x ; Jugador = o), % 3. Chequear que la casilla origen no está vacía
     valor_celda(Tablero, FilaDestino, ColumnaDestino, -), % 4. Chequear que la casilla destino esta vacía
     % Realización de movimiento
     copy_term(Estado, Estado2), % 1. Copiar estado2 para no sobreescribirlo
     arg(1, Estado, Tablero), % 2. Obtener tablero de estado2
     modificar_celda(Tablero, FilaOrigen, ColumnaOrigen, -), % 3. Vaciar celda origen
-    modificar_celda(Tablero, FilaDestino, ColumnaDestino, Origen). % 4. Sobreescribir celda destino
+    modificar_celda(Tablero, FilaDestino, ColumnaDestino, Jugador), % 4. Sobreescribir celda destino
     % Realización de captura
-    %ColumnaDestino2 is ColumnaDestino + 1,
-    %(chequear_captura(Tablero, FilaDestino, ColumnaDestino2) -> modificar_celda(Tablero, FilaDestino, ColumnaDestino2, -)).
+    jugador_opuesto(Jugador, JugadorOpuesto),
+    ver_adyacentes(Tablero, FilaDestino, ColumnaDestino, JugadorOpuesto, FilaAdy, ColumnaAdy),
+    (chequear_captura(Tablero, FilaAdy, ColumnaAdy, Jugador) -> modificar_celda(Tablero, FilaAdy, ColumnaAdy, -)).
 	
 % mejor_movimiento(+Estado,+Jugador,+NivelMinimax,+Estrategia,-Estado2): dado un estado, un jugador, un nivel para minimax, y una estrategia, 
 % devuelve la mejor jugada posible. Estrategia es solamente un átomo que se le asigna para poder implementar más de una estrategia
