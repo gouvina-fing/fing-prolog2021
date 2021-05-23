@@ -55,16 +55,26 @@ hay_posible_captura_celda(Matriz, I, J, Jugador) :- % captura vertical
     ver_adyacentes(Matriz, F, C, Jugador, _, _),
     !.
 
-% chequear_captura(+Tablero, +I, +J, +Jugador) -> Dada una matriz functor y coordenadas I y J, chequea si la pieza en (I,J) es capturada
-% tanto horizontal como verticalmente
-chequear_captura(Tablero, I, J, Jugador) :- % captura horizontal
-    J2 is J-1, valor_celda(Tablero, I, J2, Jugador), 
-    J3 is J+1, valor_celda(Tablero, I, J3, Jugador),
-    !.
-chequear_captura(Tablero, I, J, Jugador) :- % captura vertical
-    I2 is I-1, valor_celda(Tablero, I2, J, Jugador),
-    I3 is I+1, valor_celda(Tablero, I3, J, Jugador),
-    !.
+% capturar_norte(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al norte de (I,J) es capturable
+capturar_norte(Tablero, I, J, Jugador, JugadorOpuesto, I2) :-
+    I2 is I-1, I3 is I-2,
+    valor_celda(Tablero, I2, J, JugadorOpuesto),
+    valor_celda(Tablero, I3, J, Jugador).
+% capturar_sur(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al sur de (I,J) es capturable
+capturar_sur(Tablero, I, J, Jugador, JugadorOpuesto, I2) :-
+    I2 is I+1, I3 is I+2,
+    valor_celda(Tablero, I2, J, JugadorOpuesto),
+    valor_celda(Tablero, I3, J, Jugador).
+% capturar_este(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al oeste de (I,J) es capturable
+capturar_oeste(Tablero, I, J, Jugador, JugadorOpuesto, J2) :-
+    J2 is J-1, J3 is J-2,
+    valor_celda(Tablero, I, J2, JugadorOpuesto),
+    valor_celda(Tablero, I, J3, Jugador).
+% capturar_este(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al este de (I,J) es capturable
+capturar_este(Tablero, I, J, Jugador, JugadorOpuesto, J2) :-
+    J2 is J+1, J3 is J+2,
+    valor_celda(Tablero, I, J2, JugadorOpuesto),
+    valor_celda(Tablero, I, J3, Jugador).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PREDICADOS PRINCIPALES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -86,7 +96,7 @@ hay_posible_captura(Estado, Jugador):-
     hay_posible_captura_celda(Tablero, I, J, Jugador),
     !.
 
-% hacer_movimiento((m(f(x,o,x,o,x),f(o,x,o,x,o),f(x,o,-,o,x),f(o,x,o,x,o),f(x,o,x,o,x)),0,0,0,0,2),3,2,3,3,normal,e).
+% hacer_movimiento((m(f(-,-,-,-,-),f(-,-,-,x,-),f(-,x,o,-,-),f(-,-,-,o,-),f(-,-,-,x,-)),0,0,0,0,2),2,4,3,4,normal,E).
 % Hace el movimiento a partir del Estado inicial del tablero, las coordenadas origen y destino y el tipo de movimiento
 % el tipo de movimiento puede ser normal o con_captura. En el segundo caso, el movimiento debe incluir una captura, o fallar.
 % Estado y Estado2 tienen el mismo término, solamente se utiliza para poder consultar la variable de salida desde el bridge
@@ -102,10 +112,12 @@ hacer_movimiento(Estado, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino,
     arg(1, Estado, Tablero), % 2. Obtener tablero de estado2
     modificar_celda(Tablero, FilaOrigen, ColumnaOrigen, -), % 3. Vaciar celda origen
     modificar_celda(Tablero, FilaDestino, ColumnaDestino, Jugador), % 4. Sobreescribir celda destino
-    % Realización de captura
+    % Realización de captura(s)
     jugador_opuesto(Jugador, JugadorOpuesto),
-    ver_adyacentes(Tablero, FilaDestino, ColumnaDestino, JugadorOpuesto, FilaAdy, ColumnaAdy),
-    (chequear_captura(Tablero, FilaAdy, ColumnaAdy, Jugador) -> modificar_celda(Tablero, FilaAdy, ColumnaAdy, -)).
+    (capturar_norte(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, FilaCapturada1) -> modificar_celda(Tablero, FilaCapturada1, ColumnaDestino, -) ; true),
+    (capturar_sur(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, FilaCapturada2) -> modificar_celda(Tablero, FilaCapturada2, ColumnaDestino, -) ; true),
+    (capturar_oeste(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, ColumnaCapturada1) -> modificar_celda(Tablero, FilaDestino, ColumnaCapturada1, -) ; true),
+    (capturar_este(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, ColumnaCapturada2) -> modificar_celda(Tablero, FilaDestino, ColumnaCapturada2, -) ; true).
 	
 % mejor_movimiento(+Estado,+Jugador,+NivelMinimax,+Estrategia,-Estado2): dado un estado, un jugador, un nivel para minimax, y una estrategia, 
 % devuelve la mejor jugada posible. Estrategia es solamente un átomo que se le asigna para poder implementar más de una estrategia
