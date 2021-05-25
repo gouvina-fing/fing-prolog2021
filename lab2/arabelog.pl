@@ -1,3 +1,6 @@
+:- use_module(core).
+:- use_module(ai).
+
 % Tablero:
 % -> Grilla 5x5: m(f(-,-,-,-,-),f(-,-,-,-,-),f(-,-,-,-,-),f(-,-,-,-,-),f(-,-,-,-,-))
 % -> Jugador X: x
@@ -12,71 +15,8 @@
 % -> D = Cantidad de turnos seguidos sin que blanco O capture fichas
 % -> E = Fase del juego (1 insertando fichas, 2 jugando)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PREDICADOS AUXILIARES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% jugador_opuesto(?Jugador, ?JugadorOpuesto) -> Dado un tipo de Jugador, da el otro tipo de jugador en JugadorOpuesto
-jugador_opuesto(o, x).
-jugador_opuesto(x, o).
-
-% valor_celda(+Tablero, +I, +J, -Valor) -> Dada una matriz functor y coordenadas I y J, devuelve el valor de dicha celda
-valor_celda(Tablero, I, J, Valor) :-
-    arg(I, Tablero, Fila),
-    arg(J, Fila, Valor).
-
-% modificar_celda(+Tablero, +I, +J, +Valor) -> Dada una matriz functor, coordenadas I y J, y un Valor, devuelve la matriz resultante
-% de sustituir el valor en la celda (I,J) con el valor Valor (modifica la matriz original)
-modificar_celda(Tablero, I, J, Valor) :-
-    arg(I, Tablero, Fila),
-    setarg(J, Fila, Valor),
-    setarg(I, Tablero, Fila).
-
-% hay_movimiento_celda(+Tablero, I, J) -> es exitoso si hay algún movimiento posible desde la celda (I,J)
-hay_movimiento_celda(Tablero, I, J) :- J1 is J - 1, valor_celda(Tablero, I, J1, -). % misma fila, columna izquierda
-hay_movimiento_celda(Tablero, I, J) :- J1 is J + 1, valor_celda(Tablero, I, J1, -). % misma fila, columna derecha
-hay_movimiento_celda(Tablero, I, J) :- I1 is I - 1, valor_celda(Tablero, I1, J, -). % misma columna, fila superior
-hay_movimiento_celda(Tablero, I, J) :- I1 is I + 1, valor_celda(Tablero, I1, J, -). % misma columna, fila inferior
-
-% ver_adyacentes(Tablero, I, J, Jugador, M, N) -> Dada una matriz revisa si la pieza en coordenadas I,J es adyacente a una pieza
-% del jugador Jugador y da sus coordenadas en M,N.
-ver_adyacentes(Tablero, I, J, Jugador, I, J2):- J2 is J-1, valor_celda(Tablero, I, J2, Jugador). % misma fila, columna izquierda
-ver_adyacentes(Tablero, I, J, Jugador, I, J3):- J3 is J+1, valor_celda(Tablero, I, J3, Jugador). % misma fila, columna derecha
-ver_adyacentes(Tablero, I, J, Jugador, I2, J):- I2 is I-1, valor_celda(Tablero, I2, J, Jugador). % misma columna, fila superior
-ver_adyacentes(Tablero, I, J, Jugador, I3, J):- I3 is I+1, valor_celda(Tablero, I3, J, Jugador). % misma columna, fila inferior
-
-% hay_posible_captura_celda(Tablero, I, J, Jugador) -> Dada una matriz revisa si la pieza en I,J es capturable por el jugador Jugador
-hay_posible_captura_celda(Matriz, I, J, Jugador) :- % captura horizontal
-    ver_adyacentes(Matriz, I, J, Jugador, F, _),
-    ver_adyacentes(Matriz, I, J, -, F, C),
-    ver_adyacentes(Matriz, F, C, Jugador, _, _),
-    !.
-hay_posible_captura_celda(Matriz, I, J, Jugador) :- % captura vertical
-    ver_adyacentes(Matriz, I, J, Jugador, _, C),
-    ver_adyacentes(Matriz, I, J, Jugador, F, C),
-    ver_adyacentes(Matriz, F, C, Jugador, _, _),
-    !.
-
-% capturar_norte(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al norte de (I,J) es capturable
-capturar_norte(Tablero, I, J, Jugador, JugadorOpuesto, I2, exito) :-
-    I2 is I-1, I3 is I-2,
-    valor_celda(Tablero, I2, J, JugadorOpuesto),
-    valor_celda(Tablero, I3, J, Jugador).
-% capturar_sur(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al sur de (I,J) es capturable
-capturar_sur(Tablero, I, J, Jugador, JugadorOpuesto, I2, exito) :-
-    I2 is I+1, I3 is I+2,
-    valor_celda(Tablero, I2, J, JugadorOpuesto),
-    valor_celda(Tablero, I3, J, Jugador).
-% capturar_este(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al oeste de (I,J) es capturable
-capturar_oeste(Tablero, I, J, Jugador, JugadorOpuesto, J2, exito) :-
-    J2 is J-1, J3 is J-2,
-    valor_celda(Tablero, I, J2, JugadorOpuesto),
-    valor_celda(Tablero, I, J3, Jugador).
-% capturar_este(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al este de (I,J) es capturable
-capturar_este(Tablero, I, J, Jugador, JugadorOpuesto, J2, exito) :-
-    J2 is J+1, J3 is J+2,
-    valor_celda(Tablero, I, J2, JugadorOpuesto),
-    valor_celda(Tablero, I, J3, Jugador).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PREDICADOS PRINCIPALES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PREDICADOS DE JUEGO
+%% ----------------------------------------------------------------------------------------------------------------------------------------------
 
 % hay_movimiento(+Estado,+Jugador) -> es exitoso si hay algún movimiento posible para el jugador
 % dos caminos:
@@ -110,7 +50,7 @@ hacer_movimiento(Estado, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino,
     (TipoMovimiento = con_captura -> hay_posible_captura(Estado, Jugador) ; true), % 5. Chequear que haya captura posible si el movimiento es con_captura
     % Realización de movimiento
     copy_term(Estado, Estado2), % 1. Copiar estado2 para no sobreescribirlo
-    arg(1, Estado, Tablero), % 2. Obtener tablero de estado2
+    arg(1, Estado2, Tablero), % 2. Obtener tablero de estado2
     modificar_celda(Tablero, FilaOrigen, ColumnaOrigen, -), % 3. Vaciar celda origen
     modificar_celda(Tablero, FilaDestino, ColumnaDestino, Jugador), % 4. Sobreescribir celda destino
     % Realización de captura(s)
@@ -120,7 +60,24 @@ hacer_movimiento(Estado, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino,
     (capturar_oeste(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, ColumnaCapturada1, Exito) -> modificar_celda(Tablero, FilaDestino, ColumnaCapturada1, -) ; true),
     (capturar_este(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, ColumnaCapturada2, Exito) -> modificar_celda(Tablero, FilaDestino, ColumnaCapturada2, -) ; true),
     (TipoMovimiento = con_captura -> Exito == exito; true).
-	
-% mejor_movimiento(+Estado,+Jugador,+NivelMinimax,+Estrategia,-Estado2): dado un estado, un jugador, un nivel para minimax, y una estrategia, 
+
+%% PREDICADOS DE IA
+%% ----------------------------------------------------------------------------------------------------------------------------------------------
+
+% mejor_movimiento(+Estado,+Jugador,+NivelMinimax, +Estrategia, -Estado2) -> dado un estado, un jugador, un nivel para minimax, y una estrategia, 
 % devuelve la mejor jugada posible. Estrategia es solamente un átomo que se le asigna para poder implementar más de una estrategia
-% mejor_movimiento(Estado, Jugador, Nivel, Estrategia, Estado2)
+mejor_movimiento(Estado, Jugador, _, dummy, Estado2) :-
+    copy_term(Estado, Estado3), % 1. Copiar estado2 para no sobreescribirlo
+    arg(1, Estado3, Tablero), % 2. Obtener tablero de estado2
+    (
+        arg(6, Estado3, 1) 
+        ->
+        copy_term(Estado3, Estado2),
+        arg(1, Estado2, Tablero2),
+        hacer_movimiento_1(Tablero2, Jugador)
+        ;
+        hay_movimiento(Estado3, Jugador),
+        valor_celda(Tablero, I, J, Jugador),
+        ver_adyacentes(Tablero, I, J, -, I2, J2),
+        hacer_movimiento(Estado3, I, J, I2, J2, normal, Estado2)
+    ). 

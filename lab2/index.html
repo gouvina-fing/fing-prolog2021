@@ -412,6 +412,7 @@
 
       cambiar_turno(){
         if (this.fase_juego==2 || (this.fase_juego==1 && this.piezasX==12 && this.piezasO==12)){
+          this.fase_juego=2;
           // Verifico si el rival puede hacer una jugada
           axios.post("/api/hay_movimiento",
             this.postDatosConsulta(this.rival)).then(response => {
