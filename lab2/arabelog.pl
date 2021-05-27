@@ -66,18 +66,22 @@ hacer_movimiento(Estado, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino,
 
 % mejor_movimiento(+Estado,+Jugador,+NivelMinimax, +Estrategia, -Estado2) -> dado un estado, un jugador, un nivel para minimax, y una estrategia, 
 % devuelve la mejor jugada posible. Estrategia es solamente un átomo que se le asigna para poder implementar más de una estrategia
+% VERSION DUMMY
+% -> Fase 1: Rellena los primeros dos lugares libres que encuentra
+% -> Fase 2: Mueve la primer pieza con movimiento posible y si captura, pasa
 mejor_movimiento(Estado, Jugador, _, dummy, Estado2) :-
-    copy_term(Estado, Estado3), % 1. Copiar estado2 para no sobreescribirlo
-    arg(1, Estado3, Tablero), % 2. Obtener tablero de estado2
-    (
-        arg(6, Estado3, 1) 
-        ->
-        copy_term(Estado3, Estado2),
-        arg(1, Estado2, Tablero2),
-        hacer_movimiento_1(Tablero2, Jugador)
-        ;
-        hay_movimiento(Estado3, Jugador),
-        valor_celda(Tablero, I, J, Jugador),
-        ver_adyacentes(Tablero, I, J, -, I2, J2),
-        hacer_movimiento(Estado3, I, J, I2, J2, normal, Estado2)
-    ). 
+    copy_term(Estado, Estado2), % 1. Copiar estado para no editar tablero original
+    arg(1, Estado2, Tablero), % 2. Obtener tablero del estado
+    (arg(6, Estado2, 1) % 3. Chequear fase
+        -> % Si fase 1
+            hacer_movimiento_fase1(Tablero, Jugador, dummy) % 3.1. Versión dummy fase 1; elige los primeros 2 lugares libres
+        ; % Si fase 2
+            hay_movimiento(Estado2, Jugador), % 3.2.1. Comprueba que haya movimientos posibles
+            valor_celda(Tablero, I, J, Jugador), % 3.2.2. Unifica con todas las piezas del jugador
+            ver_adyacentes(Tablero, I, J, -, I2, J2), % 3.2.3. Para cada pieza comprueba si hay celdas vacías adyacentes
+            hacer_movimiento(Estado2, I, J, I2, J2, normal, Estado2) % 3.2.4. Para la primer celda vacía adyacente, realiza el movimiento
+    ).
+% VERSION MINIMAX
+mejor_movimiento(Estado, Jugador, Nivel, minimax, Estado2) :-
+    pre_minimax(Alpha, Beta),
+    minimax(Nivel, Alpha, Beta, Jugador, Estado, Estado2, _).
