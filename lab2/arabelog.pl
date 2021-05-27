@@ -83,5 +83,12 @@ mejor_movimiento(Estado, Jugador, _, dummy, Estado2) :-
     ).
 % VERSION MINIMAX
 mejor_movimiento(Estado, Jugador, Nivel, minimax, Estado2) :-
-    pre_minimax(Alpha, Beta),
-    minimax(Nivel, Alpha, Beta, maximizar, Jugador, Estado, Estado2, _).
+    copy_term(Estado, Estado2), % 1. Copiar estado para no editar tablero original
+    arg(1, Estado2, Tablero), % 2. Obtener tablero del estado
+    (arg(6, Estado2, 1) % 3. Chequear fase
+        -> % Si fase 1
+            hacer_movimiento_fase1(Tablero, Jugador, dummy) % 3.1. Versión dummy fase 1; elige los primeros 2 lugares libres
+        ; % Si fase 2
+            pre_minimax(Alpha, Beta),
+    minimax(Nivel, Alpha, Beta, Jugador, Estado, Estado2, _)
+    ).

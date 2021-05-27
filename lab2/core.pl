@@ -14,7 +14,13 @@
     capturar_norte/7,
     capturar_sur/7,
     capturar_oeste/7,
-    capturar_este/7
+    capturar_este/7,
+    % MINIMAX
+    contar_piezas/3,
+    chequear_final/1,
+    actualizar_sin_movimiento/3,
+    calcular_posibles_estados/3,
+    hacer_movimiento_aux/8
 ]).
 
 %% PREDICADOS GENERALES
@@ -93,3 +99,60 @@ capturar_este(Tablero, I, J, Jugador, JugadorOpuesto, J2, exito) :-
     J2 is J+1, J3 is J+2,
     valor_celda(Tablero, I, J2, JugadorOpuesto),
     valor_celda(Tablero, I, J3, Jugador).
+
+%% PREDICADOS AUXILIARES - mejor_movimiento
+%% ----------------------------------------------------------------------------------------------------------------------------------------------
+
+% contar_piezas(+Tablero, -PiezasX, -PiezasO) -> Dada una matriz tablero, devuelve la cantidad de piezas de cada jugador
+contar_piezas(Tablero, PiezasX, PiezasO) :-
+    findall((I,J), valor_celda(Tablero, I, J, x), ListaPiezasX), length(ListaPiezasX, PiezasX),
+    findall((I,J), valor_celda(Tablero, I, J, o), ListaPiezasO), length(ListaPiezasO, PiezasO).
+
+% chequear_final(+Estado) -> Comprueba que se cumplan las condiciones de finalización del juego
+% Jugador X va 3 turnos sin moverse
+chequear_final(Estado) :- arg(2, Estado, 3).
+% Jugador O va 3 turnos sin moverse
+chequear_final(Estado) :- arg(3, Estado, 3).
+% Ambos jugadores van 12 o más jugadas sin capturar
+chequear_final(Estado) :-
+    arg(4, Estado, SinCapturarX), SinCapturarX >= 12,
+    arg(5, Estado, SinCapturarO), SinCapturarO >= 12.
+% Ya no quedan piezas de alguno de los 2 jugadores
+chequear_final(Estado) :-
+    arg(1, Estado, Tablero),
+    contar_piezas(Tablero, PiezasX, PiezasO),
+    (PiezasX == 0 ; PiezasO == 0).
+
+%
+actualizar_sin_movimiento(Jugador, Estado, Estado2).
+
+%
+calcular_posibles_estados(Jugador, EstadoBase, Estados) :-
+    findall(Estado2, hacer_movimiento_aux(EstadoBase, Jugador, _FO, _CO, _FD, _CD, normal, Estado2), Estados).
+
+
+%% PREDICADOS INTERNOS
+%% ----------------------------------------------------------------------------------------------------------------------------------------------
+
+% hacer_movimiento_aux(+Estado, +FilaOrigen,+ColumnaOrigen,+FilaDestino,+ColumnaDestino,+TipoMovimiento,-Estado2).
+hacer_movimiento_aux(Estado, Jugador, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino, TipoMovimiento, Estado2) :-
+    % Validación de movimiento
+    arg(1, Estado, Tablero), % 1. Obtener tablero
+    valor_celda(Tablero, FilaOrigen, ColumnaOrigen, Origen), % 2. Obtener valor de casilla origen
+    Origen == Jugador,
+    (Jugador = x ; Jugador = o), % 3. Chequear que la casilla origen no está vacía
+    valor_celda(Tablero, FilaDestino, ColumnaDestino, -), % 4. Chequear que la casilla destino esta vacía
+    ver_adyacentes(Tablero, FilaOrigen, ColumnaOrigen, -, FilaDestino, ColumnaDestino),
+    (TipoMovimiento = con_captura -> hay_posible_captura(Estado, Jugador) ; true), % 5. Chequear que haya captura posible si el movimiento es con_captura
+    % Realización de movimiento
+    copy_term(Estado, Estado2), % 1. Copiar estado2 para no sobreescribirlo
+    arg(1, Estado2, Tablero), % 2. Obtener tablero de estado2
+    modificar_celda(Tablero, FilaOrigen, ColumnaOrigen, -), % 3. Vaciar celda origen
+    modificar_celda(Tablero, FilaDestino, ColumnaDestino, Jugador), % 4. Sobreescribir celda destino
+    % Realización de captura(s)
+    jugador_opuesto(Jugador, JugadorOpuesto),
+    (capturar_norte(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, FilaCapturada1, Exito) -> modificar_celda(Tablero, FilaCapturada1, ColumnaDestino, -) ; true),
+    (capturar_sur(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, FilaCapturada2, Exito) -> modificar_celda(Tablero, FilaCapturada2, ColumnaDestino, -) ; true),
+    (capturar_oeste(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, ColumnaCapturada1, Exito) -> modificar_celda(Tablero, FilaDestino, ColumnaCapturada1, -) ; true),
+    (capturar_este(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, ColumnaCapturada2, Exito) -> modificar_celda(Tablero, FilaDestino, ColumnaCapturada2, -) ; true),
+    (TipoMovimiento = con_captura -> Exito == exito; true).
