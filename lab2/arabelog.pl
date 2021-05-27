@@ -84,4 +84,4 @@ mejor_movimiento(Estado, Jugador, _, dummy, Estado2) :-
 % VERSION MINIMAX
 mejor_movimiento(Estado, Jugador, Nivel, minimax, Estado2) :-
     pre_minimax(Alpha, Beta),
-    minimax(Nivel, Alpha, Beta, Jugador, Estado, Estado2, _).
+    minimax(Nivel, Alpha, Beta, maximizar, Jugador, Estado, Estado2, _).
