@@ -7,11 +7,17 @@
 % region(Nombre,  Color,  ColoresDeVecinos)
 region(_, _, _).
 
+
 % Predicados Auxiliares
 % ----------------------------------------------------------------------------------------------------------
+pintarVecinos([], _).
+pintarVecinos([HColorV | LColoresV], ColoresSinColor) :- member(HColorV, ColoresSinColor), pintarVecinos(LColoresV, ColoresSinColor).
+
 pintarMapa([],_).
-pintarMapa([region(_, Color, _) | LR], Colores) :- 
+pintarMapa([region(_, Color, ColoresDeVecinos) | LR], Colores) :- 
     member(Color, Colores),
+    select(Color, Colores, ColoresSinColor), 
+    pintarVecinos(ColoresSinColor, ColoresDeVecinos),
     pintarMapa(LR, Colores).
 
 revisarAdyacencia([]).
