@@ -21,7 +21,8 @@ hacer_movimiento_fase1(Tablero, Jugador, dummy) :-
     % Elegir ficha 2
     valor_celda(Tablero, I2, J2, -),
     not(es_centro(I2, J2)),
-    modificar_celda(Tablero, I2, J2, Jugador).
+    modificar_celda(Tablero, I2, J2, Jugador),
+    !.
 
 %% PREDICADOS PRINCIPALES MINIMAX
 %% ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -41,8 +42,8 @@ minimax(_Nivel, _Alpha, _Beta, Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
 %    calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Jugador, Estado2, Estados, EstadoFinal, Puntaje).
 % Paso Inductivo -> 
 minimax(Nivel, Alpha, Beta, Jugador, EstadoBase, EstadoFinal, Puntaje) :-
-    calcular_posibles_estados(Jugador, EstadoBase, Estados). % Aca se hacen todos los movimientos posibles
-    calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Jugador, EstadoBase, Estados, EstadoFinal, Puntaje).
+    calcular_posibles_estados(Jugador, EstadoBase, Estados), % Aca se hacen todos los movimientos posibles
+    calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Jugador, Estados, EstadoFinal, Puntaje).
 
 % calcular_puntaje_minimax_hoja(+Jugador, +Estado, -Puntaje) -> 
 calcular_puntaje_minimax_hoja(Jugador, Estado, Puntaje) :-
@@ -52,12 +53,12 @@ calcular_puntaje_minimax_hoja(Jugador, Estado, Puntaje) :-
 
 % calcular_puntaje_minimax_rama(+Nivel, +Alpha, +Beta, +Jugador, +EstadoBase, +Estados, -EstadoFinal, -Puntaje) ->
 % Paso Base -> 
-calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Jugador, _, [Estado], EstadoFinal, Puntaje) :-
+calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Jugador, [Estado], EstadoFinal, Puntaje) :-
     Nivel2 is Nivel - 1,
     jugador_opuesto(Jugador, Contrincante),
     minimax(Nivel2, Alpha, Beta, Contrincante, Estado, EstadoFinal, Puntaje), !.
 % Paso Inductivo ->
-calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, EstadoBase, [Estado | Estados], EstadoFinal, Puntaje) :-
+calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Jugador, [Estado | Estados], EstadoFinal, Puntaje) :-
     Nivel2 is Nivel - 1,
     jugador_opuesto(Jugador, Contrincante),
     minimax(Nivel2, Alpha, Beta, Contrincante, Estado, EstadoFinal2, Puntaje2),
@@ -70,7 +71,7 @@ calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, EstadoBase, [Estado | Estados]
             Puntaje = Puntaje2,
             !
         ;
-            calcular_puntaje_minimax_rama(Nivel, Alpha2, Beta2, Jugador, Estado, Estados, EstadoFinal, Puntaje)
+            calcular_puntaje_minimax_rama(Nivel, Alpha2, Beta2, Jugador, Estados, EstadoFinal, Puntaje)
     ).
 
 %% PREDICADOS AUXILIARES MINIMAX

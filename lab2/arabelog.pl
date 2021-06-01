@@ -81,14 +81,16 @@ mejor_movimiento(Estado, Jugador, _, dummy, Estado2) :-
             ver_adyacentes(Tablero, I, J, -, I2, J2), % 3.2.3. Para cada pieza comprueba si hay celdas vacías adyacentes
             hacer_movimiento(Estado2, I, J, I2, J2, normal, Estado2) % 3.2.4. Para la primer celda vacía adyacente, realiza el movimiento
     ).
+
 % VERSION MINIMAX
 mejor_movimiento(Estado, Jugador, Nivel, minimax, Estado2) :-
-    copy_term(Estado, Estado2), % 1. Copiar estado para no editar tablero original
-    arg(1, Estado2, Tablero), % 2. Obtener tablero del estado
-    (arg(6, Estado2, 1) % 3. Chequear fase
+    copy_term(Estado, EstadoAux), % 1. Copiar estado para no editar tablero original
+    arg(1, EstadoAux, Tablero), % 2. Obtener tablero del estado
+    (arg(6, EstadoAux, 1) % 3. Chequear fase
         -> % Si fase 1
-            hacer_movimiento_fase1(Tablero, Jugador, dummy) % 3.1. Versión dummy fase 1; elige los primeros 2 lugares libres
+            hacer_movimiento_fase1(Tablero, Jugador, dummy), % 3.1. Versión dummy fase 1; elige los primeros 2 lugares libres
+            EstadoAux = Estado2
         ; % Si fase 2
             pre_minimax(Alpha, Beta),
-    minimax(Nivel, Alpha, Beta, Jugador, Estado, Estado2, _)
+            minimax(Nivel, Alpha, Beta, Jugador, EstadoAux, Estado2, _)
     ).
