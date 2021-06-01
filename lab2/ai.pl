@@ -33,7 +33,12 @@ minimax(0, _Alpha, _Beta, Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
 % Paso Base -> Nivel > 0, Fin de juego
 minimax(_Nivel, _Alpha, _Beta, Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
     chequear_final(EstadoFinal),
+
+    %% si es el final, el juego termino en empate (retornar 0)
+    %% o gano el jugador Jugador (retornar el infinito correspondiente)
     calcular_puntaje_minimax_hoja(Jugador, EstadoFinal, Puntaje), !.
+
+
 % Paso Inductivo -> No hay posibles movimientos
 %minimax(Nivel, Alpha, Beta, Jugador, EstadoBase, EstadoFinal, Puntaje) :-
 %    calcular_posibles_estados(Jugador, EstadoBase, []),
@@ -41,7 +46,8 @@ minimax(_Nivel, _Alpha, _Beta, Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
 %    calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Jugador, Estado2, Estados, EstadoFinal, Puntaje).
 % Paso Inductivo -> 
 minimax(Nivel, Alpha, Beta, Jugador, EstadoBase, EstadoFinal, Puntaje) :-
-    calcular_posibles_estados(Jugador, EstadoBase, Estados). % Aca se hacen todos los movimientos posibles
+    calcular_posibles_estados(Jugador, EstadoBase, Estados), % Aca se hacen todos los movimientos posibles
+    % HASTA ACA FUNCIONA
     calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Jugador, EstadoBase, Estados, EstadoFinal, Puntaje).
 
 % calcular_puntaje_minimax_hoja(+Jugador, +Estado, -Puntaje) -> 
@@ -51,7 +57,7 @@ calcular_puntaje_minimax_hoja(Jugador, Estado, Puntaje) :-
     Puntaje is PiezasX - PiezasO. % 3. Calcular heurística como diferencia entre piezas de X y O
 
 % calcular_puntaje_minimax_rama(+Nivel, +Alpha, +Beta, +Jugador, +EstadoBase, +Estados, -EstadoFinal, -Puntaje) ->
-% Paso Base -> 
+% Paso Base (el ultimo nodo posible de estados en el nivel)-> 
 calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Jugador, _, [Estado], EstadoFinal, Puntaje) :-
     Nivel2 is Nivel - 1,
     jugador_opuesto(Jugador, Contrincante),
