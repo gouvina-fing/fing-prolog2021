@@ -34,7 +34,6 @@ hay_posible_captura(Estado, Jugador):-
     jugador_opuesto(Jugador, JugadorOpuesto),
     valor_celda(Tablero, I, J, JugadorOpuesto),
     hay_posible_captura_celda(Tablero, I, J, Jugador),
-    %print(I+J),
     !.
 
 % hacer_movimiento((m(f(-,-,-,-,-),f(-,-,-,x,-),f(-,x,o,-,-),f(-,-,-,o,-),f(-,-,-,x,-)),0,0,0,0,2),2,4,3,4,normal,E).
