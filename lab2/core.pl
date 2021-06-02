@@ -18,7 +18,7 @@
     % MINIMAX
     contar_piezas/3,
     calcular_posibles_estados/3,
-    hacer_movimiento_aux/8
+    hacer_movimiento_aux/9
 ]).
 
 %% PREDICADOS GENERALES
@@ -110,13 +110,38 @@ contar_piezas(Tablero, PiezasX, PiezasO) :-
 
 %
 calcular_posibles_estados(Jugador, EstadoBase, Estados) :-
-    findall(Estado2, hacer_movimiento_aux(EstadoBase, Jugador, _FO, _CO, _FD, _CD, normal, Estado2), Estados).
+    findall((Estado2, Captura), hacer_movimiento_aux(EstadoBase, Jugador, _FO, _CO, _FD, _CD, normal, Estado2, Captura), Estados2),
+    calcular_posibles_estados_captura(Jugador, Estados2, Estados).
 
 %% PREDICADOS INTERNOS
 %% ----------------------------------------------------------------------------------------------------------------------------------------------
 
+%
+%
+calcular_posibles_estados_captura(Jugador, [Estado], [EstadoFinal]) :-
+    calcular_estado_final(Jugador, Estado, EstadoFinal), !.
+%
+calcular_posibles_estados_captura(Jugador, [Estado | Estados], [EstadoFinal | EstadosFinales]) :-
+    calcular_posibles_estados_captura(Jugador, Estados, EstadosFinales),
+    calcular_estado_final(Jugador, Estado, EstadoFinal).
+%
+%
+calcular_estado_final(Jugador, (Estado, exito), EstadoFinal) :-
+    hacer_movimiento_aux(Estado, Jugador, _FO, _CO, _FD, _CD, con_captura, Estado2, Captura2),
+    calcular_estado_final(Jugador, (Estado2, Captura2), EstadoFinal), !.
+calcular_estado_final(_Jugador, (Estado, _NoExito), Estado).
+
+
+% hay_posible_captura_aux(+Estado, +Jugador,)
+hay_posible_captura_aux(Estado, Jugador):-
+    arg(1, Estado, Tablero),
+    jugador_opuesto(Jugador, JugadorOpuesto),
+    valor_celda(Tablero, I, J, JugadorOpuesto),
+    hay_posible_captura_celda(Tablero, I, J, Jugador),
+    !.
+
 % hacer_movimiento_aux(+Estado, +FilaOrigen,+ColumnaOrigen,+FilaDestino,+ColumnaDestino,+TipoMovimiento,-Estado2).
-hacer_movimiento_aux(Estado, Jugador, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino, TipoMovimiento, Estado2) :-
+hacer_movimiento_aux(Estado, Jugador, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino, TipoMovimiento, Estado2, Exito) :-
     % Validación de movimiento
     arg(1, Estado, Tablero), % 1. Obtener tablero
     valor_celda(Tablero, FilaOrigen, ColumnaOrigen, Jugador), % 2. Obtener valor de casilla origen
