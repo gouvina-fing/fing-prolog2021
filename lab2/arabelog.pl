@@ -28,12 +28,13 @@ hay_movimiento(Estado, Jugador) :-
     hay_movimiento_celda(Tablero, I, J),
     !.
 
-% hay_posible_captura(+Estado, +Jugador) -> dado un Estado y un jugador, veo si alguno de los movimientos que puede realizar lleva a una captura
+% hay_posible_captura(+Estado, +Jugador,) -> dado un Estado y un jugador, veo si alguno de los movimientos que puede realizar lleva a una captura
 hay_posible_captura(Estado, Jugador):-
     arg(1, Estado, Tablero),
     jugador_opuesto(Jugador, JugadorOpuesto),
     valor_celda(Tablero, I, J, JugadorOpuesto),
     hay_posible_captura_celda(Tablero, I, J, Jugador),
+    %print(I+J),
     !.
 
 % hacer_movimiento((m(f(-,-,-,-,-),f(-,-,-,x,-),f(-,x,o,-,-),f(-,-,-,o,-),f(-,-,-,x,-)),0,0,0,0,2),2,4,3,4,normal,E).
