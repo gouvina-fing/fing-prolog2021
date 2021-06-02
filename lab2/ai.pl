@@ -47,8 +47,10 @@ minimax(_Nivel, _Alpha, _Beta, Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
 %    calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Jugador, Estado2, Estados, EstadoFinal, Puntaje).
 % Paso Inductivo -> 
 minimax(Nivel, Alpha, Beta, Jugador, EstadoBase, EstadoFinal, Puntaje) :-
-    calcular_posibles_estados(Jugador, EstadoBase, Estados), % Aca se hacen todos los movimientos posibles
-    calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Jugador, Estados, EstadoFinal, Puntaje).
+% caso borde - desde este estado el jugador no tiene movimientos posibles
+
+    calcular_posibles_estados(Jugador, EstadoBase, [Estado | Estados]), % Aca se hacen todos los movimientos posibles
+    calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Estado, Jugador, [Estado | Estados], EstadoFinal, Puntaje).
 
 % calcular_puntaje_minimax_hoja(+Jugador, +Estado, -Puntaje) -> 
 calcular_puntaje_minimax_hoja(Jugador, Estado, Puntaje) :-
@@ -58,25 +60,29 @@ calcular_puntaje_minimax_hoja(Jugador, Estado, Puntaje) :-
 
 % calcular_puntaje_minimax_rama(+Nivel, +Alpha, +Beta, +Jugador, +EstadoBase, +Estados, -EstadoFinal, -Puntaje) ->
 % Paso Base -> 
-calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Jugador, [Estado], EstadoFinal, Puntaje) :-
+calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, MejorEstado, Jugador, [Estado],  EstadoFinal, Puntaje) :-
     Nivel2 is Nivel - 1,
     jugador_opuesto(Jugador, Contrincante),
-    minimax(Nivel2, Alpha, Beta, Contrincante, Estado, EstadoFinal, Puntaje), !.
+    minimax(Nivel2, Alpha, Beta, Contrincante, Estado, _EstadoFinal2, Puntaje2), 
+    estrategia_jugador(Jugador, Estrategia),
+    calcular_mejor_jugada(Alpha, Beta, Estrategia, Puntaje2, MejorEstado, Estado, Puntaje, EstadoFinal).
+
+
 % Paso Inductivo ->
-calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Jugador, [Estado | Estados], EstadoFinal, Puntaje) :-
+calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, MejorEstado, Jugador, [Estado | Estados], EstadoFinal, Puntaje) :-
     Nivel2 is Nivel - 1,
     jugador_opuesto(Jugador, Contrincante),
-    minimax(Nivel2, Alpha, Beta, Contrincante, Estado, EstadoFinal2, Puntaje2),
-    estrategia_jugador(Contrincante, Estrategia),
+    minimax(Nivel2, Alpha, Beta, Contrincante, Estado, _EstadoFinal2, Puntaje2),
+    estrategia_jugador(Jugador, Estrategia),
     calcular_alpha_beta(Alpha, Beta, Estrategia, Puntaje2, Alpha2, Beta2),
     (
-        Alpha2 >= Beta2
+        Alpha2 >= Beta2 
         ->
-            EstadoFinal = EstadoFinal2, % REVISAR
+            EstadoFinal = Estado, % REVISAR
             Puntaje = Puntaje2,
             !
         ;
-            calcular_puntaje_minimax_rama(Nivel, Alpha2, Beta2, Jugador, Estados, EstadoFinal, Puntaje)
+            calcular_puntaje_minimax_rama(Nivel, Alpha2, Beta2, MejorEstado, Jugador, Estados, EstadoFinal, Puntaje)
     ).
 
 %% PREDICADOS AUXILIARES MINIMAX
@@ -95,3 +101,10 @@ calcular_alpha_beta(Alpha, Beta, maximizar, Puntaje, Alpha2, Beta) :-
     Alpha2 is max(Alpha, Puntaje), !.
 calcular_alpha_beta(Alpha, Beta, minimizar, Puntaje, Alpha, Beta2) :-
     Beta2 is min(Beta, Puntaje), !.
+
+% calcular_mejor_jugada(+Alpha, +Beta, +Estrategia, +Puntaje, +EstadoAnterior, +EstadoActual, -MejorPuntaje, -MejorEstado) -> Elige
+% el mejor puntaje y estado en base a los alpha y beta y la jugada anterior y actual
+calcular_mejor_jugada(Alpha, _Beta, maximizar, Puntaje, _EstadoAnterior, EstadoActual, Puntaje, EstadoActual) :- Puntaje > Alpha.
+calcular_mejor_jugada(Alpha, _Beta, maximizar, Puntaje, EstadoAnterior, _EstadoActual, Alpha, EstadoAnterior) :- Puntaje =< Alpha.
+calcular_mejor_jugada(_Alpha, Beta, minimizar, Puntaje, _EstadoAnterior, EstadoActual, Puntaje, EstadoActual) :- Puntaje < Beta.
+calcular_mejor_jugada(_Alpha, Beta, minimizar, Puntaje, EstadoAnterior, _EstadoActual, Beta, EstadoAnterior) :- Puntaje >= Beta.
