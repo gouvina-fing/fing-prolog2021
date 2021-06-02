@@ -28,7 +28,7 @@ hay_movimiento(Estado, Jugador) :-
     hay_movimiento_celda(Tablero, I, J),
     !.
 
-% hay_posible_captura(+Estado, +Jugador) -> dado un Estado y un jugador, veo si alguno de los movimientos que puede realizar lleva a una captura
+% hay_posible_captura(+Estado, +Jugador,) -> dado un Estado y un jugador, veo si alguno de los movimientos que puede realizar lleva a una captura
 hay_posible_captura(Estado, Jugador):-
     arg(1, Estado, Tablero),
     jugador_opuesto(Jugador, JugadorOpuesto),

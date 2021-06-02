@@ -71,7 +71,7 @@ hay_posible_captura_celda(Matriz, I, J, Jugador) :- % captura horizontal
     !.
 hay_posible_captura_celda(Matriz, I, J, Jugador) :- % captura vertical
     ver_adyacentes(Matriz, I, J, Jugador, _, C),
-    ver_adyacentes(Matriz, I, J, Jugador, F, C),
+    ver_adyacentes(Matriz, I, J, -, F, C),
     ver_adyacentes(Matriz, F, C, Jugador, _, _),
     !.
 

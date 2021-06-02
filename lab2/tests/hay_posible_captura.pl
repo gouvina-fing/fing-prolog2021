@@ -20,6 +20,6 @@ hay_posible_captura((m(f(-,-,-,-,-),f(-,-,x,-,-),f(-,x,-,o,x),f(-,-,x,-,-),f(-,-
 % Caso exitoso -> 2 posibilidades
 hay_posible_captura((m(f(-,-,-,-,-),f(-,-,-,-,-),f(-,x,-,o,x),f(-,-,x,-,-),f(-,-,-,-,-)),0,0,0,0,0), x).
 % Caso exitoso -> 1 posibilidad
-hay_posible_captura((m(f(-,-,-,-,-),f(-,-,-,-,-),f(-,x,-,o,x),f(-,-,x,-,-),f(-,-,-,-,-)),0,0,0,0,0), x).
+hay_posible_captura((m(f(x,x,o,o,x),f(x,x,-,x,o),f(o,-,-,-,x),f(o,x,x,x,o),f(o,x,x,o,o)),0,0,0,0,0), x).
 % Caso fallido
 hay_posible_captura((m(f(-,-,-,-,-),f(-,-,-,-,-),f(-,-,-,o,x),f(-,-,o,-,-),f(-,-,-,-,-)),0,0,0,0,0), x).
