@@ -17,7 +17,6 @@
     capturar_este/7,
     % MINIMAX
     contar_piezas/3,
-    chequear_final/2,
     actualizar_sin_movimiento/3,
     calcular_posibles_estados/3,
     hacer_movimiento_aux/8
@@ -103,39 +102,14 @@ capturar_este(Tablero, I, J, Jugador, JugadorOpuesto, J2, exito) :-
 %% PREDICADOS AUXILIARES - mejor_movimiento
 %% ----------------------------------------------------------------------------------------------------------------------------------------------
 
-%% Reviar los cuts
-%   --------------------------------------------------
+% Revisar los cuts
 
 % contar_piezas(+Tablero, -PiezasX, -PiezasO) -> Dada una matriz tablero, devuelve la cantidad de piezas de cada jugador
 contar_piezas(Tablero, PiezasX, PiezasO) :-
     findall((I,J), valor_celda(Tablero, I, J, x), ListaPiezasX), length(ListaPiezasX, PiezasX),
     findall((I,J), valor_celda(Tablero, I, J, o), ListaPiezasO), length(ListaPiezasO, PiezasO).
 
-% chequear_final(+Estado, -Resultado) -> Comprueba que se cumplan las condiciones de finalización del juego
-% Jugador X va 3 turnos sin moverse -> gana O
-chequear_final(Estado, -99999) :- arg(2, Estado, 3), !.
-% Jugador O va 3 turnos sin moverse -> gana X
-chequear_final(Estado, 99999) :- arg(3, Estado, 3), !.
-% Ambos jugadores van 12 o más jugadas sin capturar -> empate 
-chequear_final(Estado, 0) :-
-    arg(4, Estado, SinCapturarX), SinCapturarX >= 12,
-    arg(5, Estado, SinCapturarO), SinCapturarO >= 12,
-    !.
-% Ya no quedan piezas de alguno de los 2 jugadores
-chequear_final(Estado, Resultado) :-
-    arg(1, Estado, Tablero),
-    contar_piezas(Tablero, PiezasX, PiezasO),
-    (
-        % Gana O
-        PiezasX == 0, Resultado = -99999
-        ; 
-        % Gana X
-        PiezasO == 0, Resultado = 99999
-    ),
-    !.
-
-% que deberia devolver -- chequear_final(estado(m(f(-,-,-,-,-),f(-,-,x,x,-),f(-,-,-,x,-),f(x,x,-,x,-),f(x,x,-,-,-)),5,0,0,0,0), R).
-
+%
 actualizar_sin_movimiento(Jugador, Estado, Estado2).
 
 %

@@ -35,7 +35,6 @@ minimax(0, _Alpha, _Beta, Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
 minimax(_Nivel, _Alpha, _Beta, _Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
     chequear_final(EstadoFinal, Puntaje), !.
 
-
 % Paso Inductivo -> No hay posibles movimientos
 %minimax(Nivel, Alpha, Beta, Jugador, EstadoBase, EstadoFinal, Puntaje) :-
 %    calcular_posibles_estados(Jugador, EstadoBase, []),
@@ -44,7 +43,6 @@ minimax(_Nivel, _Alpha, _Beta, _Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
 % Paso Inductivo -> 
 minimax(Nivel, Alpha, Beta, Jugador, EstadoBase, EstadoFinal, Puntaje) :-
 % caso borde - desde este estado el jugador no tiene movimientos posibles
-
     calcular_posibles_estados(Jugador, EstadoBase, [Estado | Estados]), % Aca se hacen todos los movimientos posibles
     calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Estado, Jugador, [Estado | Estados], EstadoFinal, Puntaje).
 
@@ -62,7 +60,6 @@ calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, MejorEstado, Jugador, [Estado]
     minimax(Nivel2, Alpha, Beta, Contrincante, Estado, _EstadoFinal2, Puntaje2), 
     estrategia_jugador(Jugador, Estrategia),
     calcular_mejor_jugada(Alpha, Beta, Estrategia, Puntaje2, MejorEstado, Estado, Puntaje, EstadoFinal).
-
 
 % Paso Inductivo ->
 calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, MejorEstado, Jugador, [Estado | Estados], EstadoFinal, Puntaje) :-
@@ -104,3 +101,27 @@ calcular_mejor_jugada(Alpha, _Beta, maximizar, Puntaje, _EstadoAnterior, EstadoA
 calcular_mejor_jugada(Alpha, _Beta, maximizar, Puntaje, EstadoAnterior, _EstadoActual, Alpha, EstadoAnterior) :- Puntaje =< Alpha.
 calcular_mejor_jugada(_Alpha, Beta, minimizar, Puntaje, _EstadoAnterior, EstadoActual, Puntaje, EstadoActual) :- Puntaje < Beta.
 calcular_mejor_jugada(_Alpha, Beta, minimizar, Puntaje, EstadoAnterior, _EstadoActual, Beta, EstadoAnterior) :- Puntaje >= Beta.
+
+% chequear_final(+Estado, -Resultado) -> Comprueba que se cumplan las condiciones de finalización del juego
+% Jugador X va 3 turnos sin moverse -> gana O
+chequear_final(Estado, -99999) :- arg(2, Estado, 3), !.
+% Jugador O va 3 turnos sin moverse -> gana X
+chequear_final(Estado, 99999) :- arg(3, Estado, 3), !.
+% Ambos jugadores van 12 o más jugadas sin capturar -> empate 
+chequear_final(Estado, 0) :-
+    arg(4, Estado, SinCapturarX), SinCapturarX >= 12,
+    arg(5, Estado, SinCapturarO), SinCapturarO >= 12,
+    !.
+% Ya no quedan piezas de alguno de los 2 jugadores
+chequear_final(Estado, Resultado) :-
+    arg(1, Estado, Tablero),
+    contar_piezas(Tablero, PiezasX, PiezasO),
+    (
+        % Gana O
+        PiezasX == 0, Resultado = -99999
+        ; 
+        % Gana X
+        PiezasO == 0, Resultado = 99999
+    ),
+    !.
+% que deberia devolver -- chequear_final(estado(m(f(-,-,-,-,-),f(-,-,x,x,-),f(-,-,-,x,-),f(x,x,-,x,-),f(x,x,-,-,-)),5,0,0,0,0), R).
