@@ -150,12 +150,11 @@ calcular_posibles_estados(Jugador, EstadoBase, Estados) :-
 hacer_movimiento_aux(Estado, Jugador, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino, TipoMovimiento, Estado2) :-
     % Validación de movimiento
     arg(1, Estado, Tablero), % 1. Obtener tablero
-    valor_celda(Tablero, FilaOrigen, ColumnaOrigen, Origen), % 2. Obtener valor de casilla origen
-    Origen == Jugador,
+    valor_celda(Tablero, FilaOrigen, ColumnaOrigen, Jugador), % 2. Obtener valor de casilla origen
     (Jugador = x ; Jugador = o), % 3. Chequear que la casilla origen no está vacía
     valor_celda(Tablero, FilaDestino, ColumnaDestino, -), % 4. Chequear que la casilla destino esta vacía
-    ver_adyacentes(Tablero, FilaOrigen, ColumnaOrigen, -, FilaDestino, ColumnaDestino),
-    (TipoMovimiento = con_captura -> hay_posible_captura(Estado, Jugador) ; true), % 5. Chequear que haya captura posible si el movimiento es con_captura
+    ver_adyacentes(Tablero, FilaOrigen, ColumnaOrigen, -, FilaDestino, ColumnaDestino), % 5. Chequear que el movimiento es solo hacia casillas vacías adyacentes
+    (TipoMovimiento = con_captura -> hay_posible_captura(Estado, Jugador) ; true), % 6. Chequear que haya captura posible si el movimiento es con_captura
     % Realización de movimiento
     copy_term(Estado, Estado2), % 1. Copiar estado2 para no sobreescribirlo
     arg(1, Estado2, Tablero), % 2. Obtener tablero de estado2

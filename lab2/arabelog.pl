@@ -47,7 +47,8 @@ hacer_movimiento(Estado, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino,
     valor_celda(Tablero, FilaOrigen, ColumnaOrigen, Jugador), % 2. Obtener valor de casilla origen
     (Jugador = x ; Jugador = o), % 3. Chequear que la casilla origen no está vacía
     valor_celda(Tablero, FilaDestino, ColumnaDestino, -), % 4. Chequear que la casilla destino esta vacía
-    (TipoMovimiento = con_captura -> hay_posible_captura(Estado, Jugador) ; true), % 5. Chequear que haya captura posible si el movimiento es con_captura
+    ver_adyacentes(Tablero, FilaOrigen, ColumnaOrigen, -, FilaDestino, ColumnaDestino), % 5. Chequear que el movimiento es solo hacia casillas vacías adyacentes
+    (TipoMovimiento = con_captura -> hay_posible_captura(Estado, Jugador) ; true), % 6. Chequear que haya captura posible si el movimiento es con_captura
     % Realización de movimiento
     copy_term(Estado, Estado2), % 1. Copiar estado2 para no sobreescribirlo
     arg(1, Estado2, Tablero), % 2. Obtener tablero de estado2
@@ -81,7 +82,6 @@ mejor_movimiento(Estado, Jugador, _, dummy, Estado2) :-
             ver_adyacentes(Tablero, I, J, -, I2, J2), % 3.2.3. Para cada pieza comprueba si hay celdas vacías adyacentes
             hacer_movimiento(Estado2, I, J, I2, J2, normal, Estado2) % 3.2.4. Para la primer celda vacía adyacente, realiza el movimiento
     ).
-
 % VERSION MINIMAX
 mejor_movimiento(Estado, Jugador, Nivel, minimax, Estado2) :-
     copy_term(Estado, EstadoAux), % 1. Copiar estado para no editar tablero original
