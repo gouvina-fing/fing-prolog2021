@@ -32,12 +32,8 @@ hacer_movimiento_fase1(Tablero, Jugador, dummy) :-
 minimax(0, _Alpha, _Beta, Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
     calcular_puntaje_minimax_hoja(Jugador, EstadoFinal, Puntaje), !.
 % Paso Base -> Nivel > 0, Fin de juego
-minimax(_Nivel, _Alpha, _Beta, Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
-    chequear_final(EstadoFinal),
-
-    %% si es el final, el juego termino en empate (retornar 0)
-    %% o gano el jugador Jugador (retornar el infinito correspondiente)
-    calcular_puntaje_minimax_hoja(Jugador, EstadoFinal, Puntaje), !.
+minimax(_Nivel, _Alpha, _Beta, _Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
+    chequear_final(EstadoFinal, Puntaje), !.
 
 
 % Paso Inductivo -> No hay posibles movimientos
