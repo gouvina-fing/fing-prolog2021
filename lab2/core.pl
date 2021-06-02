@@ -80,21 +80,25 @@ hay_posible_captura_celda(Matriz, I, J, Jugador) :- % captura vertical
 % capturar_norte(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al norte de (I,J) es capturable
 capturar_norte(Tablero, I, J, Jugador, JugadorOpuesto, I2, exito) :-
     I2 is I-1, I3 is I-2,
+    \+es_centro(I2, J),
     valor_celda(Tablero, I2, J, JugadorOpuesto),
     valor_celda(Tablero, I3, J, Jugador).
 % capturar_sur(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al sur de (I,J) es capturable
 capturar_sur(Tablero, I, J, Jugador, JugadorOpuesto, I2, exito) :-
     I2 is I+1, I3 is I+2,
+    \+es_centro(I2, J),
     valor_celda(Tablero, I2, J, JugadorOpuesto),
     valor_celda(Tablero, I3, J, Jugador).
 % capturar_este(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al oeste de (I,J) es capturable
 capturar_oeste(Tablero, I, J, Jugador, JugadorOpuesto, J2, exito) :-
     J2 is J-1, J3 is J-2,
+    \+es_centro(I, J2),
     valor_celda(Tablero, I, J2, JugadorOpuesto),
     valor_celda(Tablero, I, J3, Jugador).
 % capturar_este(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al este de (I,J) es capturable
 capturar_este(Tablero, I, J, Jugador, JugadorOpuesto, J2, exito) :-
     J2 is J+1, J3 is J+2,
+    \+es_centro(I, J2),
     valor_celda(Tablero, I, J2, JugadorOpuesto),
     valor_celda(Tablero, I, J3, Jugador).
 
@@ -110,13 +114,17 @@ contar_piezas(Tablero, PiezasX, PiezasO) :-
 
 %
 calcular_posibles_estados(Jugador, EstadoBase, Estados) :-
-    findall((Estado2, Captura), hacer_movimiento_aux(EstadoBase, Jugador, _FO, _CO, _FD, _CD, normal, Estado2, Captura), Estados2),
-    calcular_posibles_estados_captura(Jugador, Estados2, Estados).
+    findall(Estado, hacer_movimiento_aux(EstadoBase, Jugador, _FO, _CO, _FD, _CD, normal, Estado, si), EstadosConCaptura),
+    findall(Estado, hacer_movimiento_aux(EstadoBase, Jugador, _FO, _CO, _FD, _CD, normal, Estado, no), EstadosSinCaptura),
+    calcular_posibles_estados_captura(Jugador, EstadosConCaptura, EstadosConCaptura2),
+    append(EstadosConCaptura2, EstadosSinCaptura, Estados).
 
 %% PREDICADOS INTERNOS
 %% ----------------------------------------------------------------------------------------------------------------------------------------------
 
 %
+%
+calcular_posibles_estados_captura(Jugador, [], []).
 %
 calcular_posibles_estados_captura(Jugador, [Estado], [EstadoFinal]) :-
     calcular_estado_final(Jugador, Estado, EstadoFinal), !.
@@ -126,11 +134,11 @@ calcular_posibles_estados_captura(Jugador, [Estado | Estados], [EstadoFinal | Es
     calcular_estado_final(Jugador, Estado, EstadoFinal).
 %
 %
-calcular_estado_final(Jugador, (Estado, exito), EstadoFinal) :-
-    hacer_movimiento_aux(Estado, Jugador, _FO, _CO, _FD, _CD, con_captura, Estado2, Captura2),
-    calcular_estado_final(Jugador, (Estado2, Captura2), EstadoFinal), !.
-calcular_estado_final(_Jugador, (Estado, _NoExito), Estado).
-
+calcular_estado_final(Jugador, Estado, EstadoFinal) :-
+    hacer_movimiento_aux(Estado, Jugador, _FO, _CO, _FD, _CD, con_captura, Estado2, _Captura),
+    calcular_estado_final(Jugador, Estado2, EstadoFinal), !. % Sin el cut unifica con las jugadas intermedias
+calcular_estado_final(_Jugador, Estado, Estado).
+% Testear que hacer_movimiento_aux unifique con 2 capturas o mas
 
 % hay_posible_captura_aux(+Estado, +Jugador,)
 hay_posible_captura_aux(Estado, Jugador):-
@@ -141,7 +149,7 @@ hay_posible_captura_aux(Estado, Jugador):-
     !.
 
 % hacer_movimiento_aux(+Estado, +FilaOrigen,+ColumnaOrigen,+FilaDestino,+ColumnaDestino,+TipoMovimiento,-Estado2).
-hacer_movimiento_aux(Estado, Jugador, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino, TipoMovimiento, Estado2, Exito) :-
+hacer_movimiento_aux(Estado, Jugador, FilaOrigen, ColumnaOrigen, FilaDestino, ColumnaDestino, TipoMovimiento, Estado2, Captura) :-
     % Validación de movimiento
     arg(1, Estado, Tablero), % 1. Obtener tablero
     valor_celda(Tablero, FilaOrigen, ColumnaOrigen, Jugador), % 2. Obtener valor de casilla origen
@@ -160,4 +168,5 @@ hacer_movimiento_aux(Estado, Jugador, FilaOrigen, ColumnaOrigen, FilaDestino, Co
     (capturar_sur(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, FilaCapturada2, Exito) -> modificar_celda(Tablero, FilaCapturada2, ColumnaDestino, -) ; true),
     (capturar_oeste(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, ColumnaCapturada1, Exito) -> modificar_celda(Tablero, FilaDestino, ColumnaCapturada1, -) ; true),
     (capturar_este(Tablero, FilaDestino, ColumnaDestino, Jugador, JugadorOpuesto, ColumnaCapturada2, Exito) -> modificar_celda(Tablero, FilaDestino, ColumnaCapturada2, -) ; true),
-    (TipoMovimiento = con_captura -> Exito == exito; true).
+    (Exito == exito -> Captura = si ; Captura = no),
+    (TipoMovimiento = con_captura -> Exito == exito ; true).
