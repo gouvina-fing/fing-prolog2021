@@ -18,3 +18,6 @@ hacer_movimiento((m(f(-,-,-,-,-),f(-,-,o,x,-),f(-,-,-,-,-),f(-,-,-,-,-),f(-,-,-,
 hacer_movimiento((m(f(-,-,-,-,-),f(-,-,-,x,-),f(-,x,-,-,-),f(-,-,-,-,-),f(-,-,-,x,-)),0,0,0,0,2),2,4,3,4,con_captura,E).
 % Caso fallido -> Movimiento con_captura con captura posible pero no hecha, X (2,4)->(3,4)
 hacer_movimiento((m(f(-,-,-,-,-),f(x,o,-,x,-),f(-,-,-,-,-),f(-,-,-,-,-),f(-,-,-,-,-)),0,0,0,0,2),2,4,3,4,con_captura,E).
+
+% Estados:
+% hacer_movimiento((m(f(x,x,o,o,x),f(x,o,o,x,x),f(o,o,-,x,x),f(o,o,x,x,o),f(o,x,x,o,o)),0,0,0,0,2),3,2,3,3,normal,E).

@@ -17,7 +17,6 @@
     capturar_este/7,
     % MINIMAX
     contar_piezas/3,
-    actualizar_sin_movimiento/3,
     calcular_posibles_estados/3,
     hacer_movimiento_aux/8
 ]).
@@ -110,12 +109,8 @@ contar_piezas(Tablero, PiezasX, PiezasO) :-
     findall((I,J), valor_celda(Tablero, I, J, o), ListaPiezasO), length(ListaPiezasO, PiezasO).
 
 %
-actualizar_sin_movimiento(Jugador, Estado, Estado2).
-
-%
 calcular_posibles_estados(Jugador, EstadoBase, Estados) :-
     findall(Estado2, hacer_movimiento_aux(EstadoBase, Jugador, _FO, _CO, _FD, _CD, normal, Estado2), Estados).
-
 
 %% PREDICADOS INTERNOS
 %% ----------------------------------------------------------------------------------------------------------------------------------------------

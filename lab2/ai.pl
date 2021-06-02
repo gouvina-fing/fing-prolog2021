@@ -34,15 +34,12 @@ minimax(0, _Alpha, _Beta, Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
 % Paso Base -> Nivel > 0, Fin de juego
 minimax(_Nivel, _Alpha, _Beta, _Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
     chequear_final(EstadoFinal, Puntaje), !.
-
-% Paso Inductivo -> No hay posibles movimientos
-%minimax(Nivel, Alpha, Beta, Jugador, EstadoBase, EstadoFinal, Puntaje) :-
-%    calcular_posibles_estados(Jugador, EstadoBase, []),
-%    actualizar_sin_movimiento(Jugador, EstadoBase, Estado2),
-%    calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Jugador, Estado2, Estados, EstadoFinal, Puntaje).
-% Paso Inductivo -> 
+% Paso Base -> Nivel > 0, No hay posibles movimientos
+minimax(Nivel, Alpha, Beta, Jugador, EstadoBase, EstadoBase, Puntaje) :-
+    calcular_posibles_estados(Jugador, EstadoBase, []),
+    calcular_puntaje_minimax_hoja(Jugador, EstadoBase, Puntaje), !.
+% Paso Inductivo -> Hay posibles movimientos
 minimax(Nivel, Alpha, Beta, Jugador, EstadoBase, EstadoFinal, Puntaje) :-
-% caso borde - desde este estado el jugador no tiene movimientos posibles
     calcular_posibles_estados(Jugador, EstadoBase, [Estado | Estados]), % Aca se hacen todos los movimientos posibles
     calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Estado, Jugador, [Estado | Estados], EstadoFinal, Puntaje).
 
@@ -60,9 +57,9 @@ calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, MejorEstado, Jugador, [Estado]
     minimax(Nivel2, Alpha, Beta, Contrincante, Estado, _EstadoFinal2, Puntaje2), 
     estrategia_jugador(Jugador, Estrategia),
     calcular_mejor_jugada(Alpha, Beta, Estrategia, Puntaje2, MejorEstado, Estado, Puntaje, EstadoFinal).
-
 % Paso Inductivo ->
 calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, MejorEstado, Jugador, [Estado | Estados], EstadoFinal, Puntaje) :-
+    Estados \= [],
     Nivel2 is Nivel - 1,
     jugador_opuesto(Jugador, Contrincante),
     minimax(Nivel2, Alpha, Beta, Contrincante, Estado, _EstadoFinal2, Puntaje2),
