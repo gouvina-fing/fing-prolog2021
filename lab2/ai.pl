@@ -1,18 +1,48 @@
 :- module(ai,
 [
-    % GENERALES
+    % FASE 1
     hacer_movimiento_fase1/3,
-    % MINIMAX
+    % FASE 2
     pre_minimax/2,
     minimax/7
 ]).
 
 :- use_module(core).
 
-%% PREDICADOS GENERALES
+%% FASE 1
+%% ----------------------------------------------------------------------------------------------------------------------------------------------
 %% ----------------------------------------------------------------------------------------------------------------------------------------------
 
-% hacer_movimiento(+Tablero, +Jugador, +Estrategia) -> VERSION DUMMY, FASE 1
+distancia_al_centro(I, J, Distancia) :- Distancia is abs(I - 3) + abs(J - 3).
+
+% mas_proximo_al_centro_2(ListaCeldasLibres, I_actual, J_actual, MinActual, I_final, J_final  ) :-
+mas_proximo_al_centro_2([], I, J, _MinActual, I, J ).
+
+mas_proximo_al_centro_2([(I,J) | _L], _I_actual, _J_actual, _MinActual, I, J ) :- 
+    distancia_al_centro(I, J, Distancia),
+    Distancia == 1,
+    !.
+
+mas_proximo_al_centro_2([(I,J) | L], _I_actual, _J_actual, MinActual, I_final, J_final ) :- 
+    distancia_al_centro(I, J, Distancia),
+    Distancia < MinActual,
+    !,
+    mas_proximo_al_centro_2(L, I, J, Distancia, I_final, J_final ).
+
+mas_proximo_al_centro_2([(_I, _J) | L], I_actual, J_actual, MinActual, I_final, J_final ) :-
+    mas_proximo_al_centro_2(L, I_actual, J_actual, MinActual, I_final, J_final ).
+
+% mas_proximo_al_centro(ListaCeldasLibres, I_final, J_final  ) :-
+mas_proximo_al_centro([], 99, 99).          %% Caso borde, en teoria no deberia invocarse este predicado con lista vacia
+
+mas_proximo_al_centro([(I,J) | L], I_final, J_final) :-
+    distancia_al_centro(I, J, Distancia),
+    mas_proximo_al_centro_2(L, I, J, Distancia, I_final, J_final ).
+
+
+
+% hacer_movimiento_fase1(+Tablero, +Jugador, +Estrategia)
+% VERSION DUMMY
 hacer_movimiento_fase1(Tablero, Jugador, dummy) :-
     % Elegir ficha 1
     valor_celda(Tablero, I, J, -),
@@ -24,27 +54,55 @@ hacer_movimiento_fase1(Tablero, Jugador, dummy) :-
     modificar_celda(Tablero, I2, J2, Jugador),
     !.
 
+
+% VERSION INTELIGENTE 
+
+% caso borde - minimo tiene que estar el centro y dos casillas mas libres, en caso contrario devuelve el mismo tablero
+hacer_movimiento_fase1(Tablero, _Jugador, minimax) :-
+    findall((I,J), valor_celda(Tablero, I, J, -), ListaCeldasLibres),
+    length(ListaCeldasLibres, L),
+    L < 3, 
+    !.
+
+hacer_movimiento_fase1(Tablero, Jugador, minimax) :-
+    findall((I,J), valor_celda(Tablero, I, J, -), ListaCeldasLibres),
+    % Descarto el centro
+    select((3,3), ListaCeldasLibres, ListaCeldasLibres2),
+    % Elegir ficha 1
+    mas_proximo_al_centro(ListaCeldasLibres2, I, J ),
+    modificar_celda(Tablero, I, J, Jugador),
+    select((I, J), ListaCeldasLibres2, ListaCeldasLibres3),
+    % Elegir ficha 2
+    mas_proximo_al_centro(ListaCeldasLibres3, I2, J2 ),
+    modificar_celda(Tablero, I2, J2, Jugador),
+    !.
+
+%% FASE 2
+%% ----------------------------------------------------------------------------------------------------------------------------------------------
+%% ----------------------------------------------------------------------------------------------------------------------------------------------
+
+
 %% PREDICADOS PRINCIPALES MINIMAX
 %% ----------------------------------------------------------------------------------------------------------------------------------------------
 
 % minimax(+Nivel, +Alpha, +Beta, +Jugador, +EstadoBase, -EstadoFinal, -Puntaje) ->
 % Paso Base -> Nivel = 0
-minimax(0, _Alpha, _Beta, Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
-    calcular_puntaje_minimax_hoja(Jugador, EstadoFinal, Puntaje), !.
+minimax(0, _Alpha, _Beta, _Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
+    calcular_puntaje_minimax_hoja(EstadoFinal, Puntaje), !.
 % Paso Base -> Nivel > 0, Fin de juego
 minimax(_Nivel, _Alpha, _Beta, _Jugador, EstadoFinal, EstadoFinal, Puntaje) :-
     chequear_final(EstadoFinal, Puntaje), !.
 % Paso Base -> Nivel > 0, No hay posibles movimientos
-minimax(Nivel, Alpha, Beta, Jugador, EstadoBase, EstadoBase, Puntaje) :-
+minimax(_Nivel, _Alpha, _Beta, Jugador, EstadoBase, EstadoBase, Puntaje) :-
     calcular_posibles_estados(Jugador, EstadoBase, []),
-    calcular_puntaje_minimax_hoja(Jugador, EstadoBase, Puntaje), !.
+    calcular_puntaje_minimax_hoja(EstadoBase, Puntaje), !.
 % Paso Inductivo -> Hay posibles movimientos
 minimax(Nivel, Alpha, Beta, Jugador, EstadoBase, EstadoFinal, Puntaje) :-
     calcular_posibles_estados(Jugador, EstadoBase, [Estado | Estados]), % Aca se hacen todos los movimientos posibles
     calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Estado, Jugador, [Estado | Estados], EstadoFinal, Puntaje).
 
 % calcular_puntaje_minimax_hoja(+Jugador, +Estado, -Puntaje) -> 
-calcular_puntaje_minimax_hoja(Jugador, Estado, Puntaje) :-
+calcular_puntaje_minimax_hoja(Estado, Puntaje) :-
     arg(1, Estado, Tablero), % 1. Obtener tablero del estado
     contar_piezas(Tablero, PiezasX, PiezasO), % 2. Contar cantidad de piezas de cada jugador
     Puntaje is PiezasX - PiezasO. % 3. Calcular heurística como diferencia entre piezas de X y O
@@ -68,7 +126,7 @@ calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, MejorEstado, Jugador, [Estado 
     (
         Alpha2 >= Beta2 
         ->
-            EstadoFinal = Estado, % REVISAR
+            EstadoFinal = Estado,
             Puntaje = Puntaje2,
             !
         ;
