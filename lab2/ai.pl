@@ -99,7 +99,7 @@ minimax(_Nivel, _Alpha, _Beta, Jugador, EstadoBase, EstadoBase, Puntaje) :-
 % Paso Inductivo -> Hay posibles movimientos
 minimax(Nivel, Alpha, Beta, Jugador, EstadoBase, EstadoFinal, Puntaje) :-
     calcular_posibles_estados(Jugador, EstadoBase, [Estado | Estados]), % Aca se hacen todos los movimientos posibles
-    calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Estado, Jugador, [Estado | Estados], EstadoFinal, Puntaje).
+    calcular_puntaje_minimax_rama(Nivel, Alpha, Beta, Estado, Jugador, [Estado | Estados], EstadoFinal, Puntaje).  
 
 % calcular_puntaje_minimax_hoja(+Jugador, +Estado, -Puntaje) -> 
 calcular_puntaje_minimax_hoja(Estado, Puntaje) :-
