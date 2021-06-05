@@ -115,7 +115,7 @@ contar_piezas(Tablero, PiezasX, PiezasO) :-
 %
 calcular_posibles_estados(Jugador, EstadoBase, Estados) :-
     findall(Estado, hacer_movimiento_aux(EstadoBase, Jugador, _FO, _CO, _FD, _CD, normal, Estado, si), EstadosConCaptura),
-    findall(Estado, hacer_movimiento_aux(EstadoBase, Jugador, _FO, _CO, _FD, _CD, normal, Estado, no), EstadosSinCaptura),
+    findall(Estado, hacer_movimiento_aux(EstadoBase, Jugador, _FO1, _CO1, _FD1, _CD1, normal, Estado, no), EstadosSinCaptura),
     calcular_posibles_estados_captura(Jugador, EstadosConCaptura, EstadosConCaptura2),
     append(EstadosConCaptura2, EstadosSinCaptura, Estados).
 
@@ -124,7 +124,7 @@ calcular_posibles_estados(Jugador, EstadoBase, Estados) :-
 
 %
 %
-calcular_posibles_estados_captura(Jugador, [], []).
+calcular_posibles_estados_captura(_Jugador, [], []).
 %
 calcular_posibles_estados_captura(Jugador, [Estado], [EstadoFinal]) :-
     calcular_estado_final(Jugador, Estado, EstadoFinal), !.
@@ -145,6 +145,7 @@ hay_posible_captura_aux(Estado, Jugador):-
     arg(1, Estado, Tablero),
     jugador_opuesto(Jugador, JugadorOpuesto),
     valor_celda(Tablero, I, J, JugadorOpuesto),
+    \+es_centro(I, J),
     hay_posible_captura_celda(Tablero, I, J, Jugador),
     !.
 
@@ -156,7 +157,7 @@ hacer_movimiento_aux(Estado, Jugador, FilaOrigen, ColumnaOrigen, FilaDestino, Co
     (Jugador = x ; Jugador = o), % 3. Chequear que la casilla origen no está vacía
     valor_celda(Tablero, FilaDestino, ColumnaDestino, -), % 4. Chequear que la casilla destino esta vacía
     ver_adyacentes(Tablero, FilaOrigen, ColumnaOrigen, -, FilaDestino, ColumnaDestino), % 5. Chequear que el movimiento es solo hacia casillas vacías adyacentes
-    (TipoMovimiento = con_captura -> hay_posible_captura(Estado, Jugador) ; true), % 6. Chequear que haya captura posible si el movimiento es con_captura
+    (TipoMovimiento = con_captura -> hay_posible_captura_aux(Estado, Jugador) ; true), % 6. Chequear que haya captura posible si el movimiento es con_captura
     % Realización de movimiento
     copy_term(Estado, Estado2), % 1. Copiar estado2 para no sobreescribirlo
     arg(1, Estado2, Tablero), % 2. Obtener tablero de estado2

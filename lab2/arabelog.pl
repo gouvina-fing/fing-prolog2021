@@ -33,6 +33,7 @@ hay_posible_captura(Estado, Jugador):-
     arg(1, Estado, Tablero),
     jugador_opuesto(Jugador, JugadorOpuesto),
     valor_celda(Tablero, I, J, JugadorOpuesto),
+    \+es_centro(I, J),
     hay_posible_captura_celda(Tablero, I, J, Jugador),
     !.
 
@@ -88,7 +89,7 @@ mejor_movimiento(Estado, Jugador, Nivel, minimax, Estado2) :-
     arg(1, EstadoAux, Tablero), % 2. Obtener tablero del estado
     (arg(6, EstadoAux, 1) % 3. Chequear fase
         -> % Si fase 1
-            hacer_movimiento_fase1(Tablero, Jugador, dummy), % 3.1. Versión dummy fase 1; elige los primeros 2 lugares libres
+            hacer_movimiento_fase1(Tablero, Jugador, minimax), % 3.1. Versión dummy fase 1; elige los primeros 2 lugares libres
             EstadoAux = Estado2
         ; % Si fase 2
             pre_minimax(Alpha, Beta),
