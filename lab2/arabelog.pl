@@ -392,7 +392,7 @@ mejor_movimiento(Estado, Jugador, _, dummy, Estado2) :-
 % VERSION MINIMAX
 % -> Fase 1: Rellena según heurística: cuánto más cerca del centro, mejor.
 % -> Fase 2: Elige su movimiento ejecutando minimax
-mejor_movimiento(Estado, Jugador, Nivel, minimax, Estado2) :-
+mejor_movimiento(Estado, Jugador, Nivel, ia_06, Estado2) :-
     copy_term(Estado, EstadoAux), % 1. Copiar estado para no editar tablero original
     arg(1, EstadoAux, Tablero), % 2. Obtener tablero del estado
     (arg(6, EstadoAux, 1) % 3. Chequear fase
