@@ -18,7 +18,7 @@
 %% --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 %% --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-%% PREDICADOS AUXILIARES
+%% PREDICADOS AUXILIARES - Tablero
 %% --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 % es_centro(?I, ?J) -> Dado un par de coordenadas I,J determina si son el centro del tablero o no
@@ -46,7 +46,12 @@ ver_adyacentes(Tablero, I, J, Jugador, I, J3):- J3 is J+1, valor_celda(Tablero, 
 ver_adyacentes(Tablero, I, J, Jugador, I2, J):- I2 is I-1, valor_celda(Tablero, I2, J, Jugador). % misma columna, fila superior
 ver_adyacentes(Tablero, I, J, Jugador, I3, J):- I3 is I+1, valor_celda(Tablero, I3, J, Jugador). % misma columna, fila inferior
 
-%% PREDICADOS AUXILIARES - hay_movimiento
+% contar_piezas(+Tablero, -PiezasX, -PiezasO) -> Dada una matriz tablero, devuelve la cantidad de piezas de cada jugador
+contar_piezas(Tablero, PiezasX, PiezasO) :-
+    findall((I,J), valor_celda(Tablero, I, J, x), ListaPiezasX), length(ListaPiezasX, PiezasX),
+    findall((I,J), valor_celda(Tablero, I, J, o), ListaPiezasO), length(ListaPiezasO, PiezasO).
+
+%% PREDICADOS AUXILIARES - Chequeos
 %% --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 % hay_movimiento_celda(+Tablero, I, J) -> es exitoso si hay algún movimiento posible desde la celda (I,J)
@@ -54,9 +59,6 @@ hay_movimiento_celda(Tablero, I, J) :- J1 is J - 1, valor_celda(Tablero, I, J1, 
 hay_movimiento_celda(Tablero, I, J) :- J1 is J + 1, valor_celda(Tablero, I, J1, -). % misma fila, columna derecha
 hay_movimiento_celda(Tablero, I, J) :- I1 is I - 1, valor_celda(Tablero, I1, J, -). % misma columna, fila superior
 hay_movimiento_celda(Tablero, I, J) :- I1 is I + 1, valor_celda(Tablero, I1, J, -). % misma columna, fila inferior
-
-%% PREDICADOS AUXILIARES - hay_posible_captura
-%% --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 % hay_posible_captura_celda(Tablero, I, J, Jugador) -> Dada una matriz revisa si la pieza en I,J es capturable por el jugador Jugador
 hay_posible_captura_celda(Matriz, I, J, Jugador) :- % captura horizontal
@@ -70,7 +72,7 @@ hay_posible_captura_celda(Matriz, I, J, Jugador) :- % captura vertical
     ver_adyacentes(Matriz, F, C, Jugador, _, _),
     !.
 
-%% PREDICADOS AUXILIARES - hacer_movimiento
+%% PREDICADOS AUXILIARES - Capturas
 %% --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 % capturar_norte(+Tablero, +I, +J, +Jugador, +JugadorOpuesto, -CoordenadaCaptura) -> Comprueba si la pieza al norte de (I,J) es capturable
@@ -98,13 +100,8 @@ capturar_este(Tablero, I, J, Jugador, JugadorOpuesto, J2, exito) :-
     valor_celda(Tablero, I, J2, JugadorOpuesto),
     valor_celda(Tablero, I, J3, Jugador).
 
-%% PREDICADOS AUXILIARES - mejor_movimiento
+%% PREDICADOS AUXILIARES - Movimientos
 %% --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-% contar_piezas(+Tablero, -PiezasX, -PiezasO) -> Dada una matriz tablero, devuelve la cantidad de piezas de cada jugador
-contar_piezas(Tablero, PiezasX, PiezasO) :-
-    findall((I,J), valor_celda(Tablero, I, J, x), ListaPiezasX), length(ListaPiezasX, PiezasX),
-    findall((I,J), valor_celda(Tablero, I, J, o), ListaPiezasO), length(ListaPiezasO, PiezasO).
 
 % calcular_posibles_estados(+Jugador, +EstadoBase, -Estados) -> Dado un jugador y un estado base, genera una lista con todos los estados posibles resultantes de que el jugador
 % haga un movimiento normal. A su vez, si en dicho movimiento realiza una captura, sigue intentando capturar hasta que no le queden más posibles capturas.
@@ -113,9 +110,6 @@ calcular_posibles_estados(Jugador, EstadoBase, Estados) :-
     findall(Estado, hacer_movimiento_aux(EstadoBase, Jugador, _FO1, _CO1, _FD1, _CD1, normal, Estado, no), EstadosSinCaptura),
     calcular_posibles_estados_captura(Jugador, EstadosConCaptura, EstadosConCaptura2),
     append(EstadosConCaptura2, EstadosSinCaptura, Estados).
-
-%% PREDICADOS AUXILIARES - calcular_posibles_estados
-%% --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 % calcular_posibles_estados_captura(+Jugador, +Estados, -Estados2) -> En base a una lista de estados donde se realizó una captura, sigue intentando hacer movimientos con captura
 % hasta que no queden más movimientos posibles para cada estado de la lista. De esta forma, la lista salida tiene los estados de la lista entrada pero en una etapa más avanzada
@@ -398,7 +392,7 @@ mejor_movimiento(Estado, Jugador, _, dummy, Estado2) :-
 % VERSION MINIMAX
 % -> Fase 1: Rellena según heurística: cuánto más cerca del centro, mejor.
 % -> Fase 2: Elige su movimiento ejecutando minimax
-mejor_movimiento(Estado, Jugador, Nivel, minimax, Estado2) :-
+mejor_movimiento(Estado, Jugador, Nivel, ia_06, Estado2) :-
     copy_term(Estado, EstadoAux), % 1. Copiar estado para no editar tablero original
     arg(1, EstadoAux, Tablero), % 2. Obtener tablero del estado
     (arg(6, EstadoAux, 1) % 3. Chequear fase
