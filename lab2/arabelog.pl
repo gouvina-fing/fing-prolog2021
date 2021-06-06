@@ -171,30 +171,31 @@ hacer_movimiento_aux(Estado, Jugador, FilaOrigen, ColumnaOrigen, FilaDestino, Co
 %% PREDICADOS FASE 1
 %% --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+% distancia_al_centro(+I, +J, -Distancia) -> Dado un par de coordenadas (I,J) calcula la distancia manhattan hacia (3,3)
 distancia_al_centro(I, J, Distancia) :- Distancia is abs(I - 3) + abs(J - 3).
 
-% mas_proximo_al_centro_2(ListaCeldasLibres, I_actual, J_actual, MinActual, I_final, J_final  ) :-
-%
-mas_proximo_al_centro_2([], I, J, _MinActual, I, J ).
-%
-mas_proximo_al_centro_2([(I,J) | _L], _I_actual, _J_actual, _MinActual, I, J ) :- 
+% mas_proximo_al_centro_2(+ListaCeldasLibres, +I_actual, +J_actual, MinActual, -I_final, -J_final ) -> Intenta elegir celdas cercanas al centro
+% Sin celdas libres
+mas_proximo_al_centro_2([], I, J, _MinActual, I, J).
+% Hay celdas libres alrededor del centro
+mas_proximo_al_centro_2([(I,J) | _L], _I_actual, _J_actual, _MinActual, I, J) :- 
     distancia_al_centro(I, J, Distancia),
     Distancia == 1,
     !.
-%
-mas_proximo_al_centro_2([(I,J) | L], _I_actual, _J_actual, MinActual, I_final, J_final ) :- 
+% Todavía hay celdas cercanas al centro
+mas_proximo_al_centro_2([(I,J) | L], _I_actual, _J_actual, MinActual, I_final, J_final) :- 
     distancia_al_centro(I, J, Distancia),
     Distancia < MinActual,
     !,
-    mas_proximo_al_centro_2(L, I, J, Distancia, I_final, J_final ).
-%
-mas_proximo_al_centro_2([(_I, _J) | L], I_actual, J_actual, MinActual, I_final, J_final ) :-
-    mas_proximo_al_centro_2(L, I_actual, J_actual, MinActual, I_final, J_final ).
+    mas_proximo_al_centro_2(L, I, J, Distancia, I_final, J_final).
+% Buscando celdas que cumplan las anteriores condiciones
+mas_proximo_al_centro_2([(_I, _J) | L], I_actual, J_actual, MinActual, I_final, J_final) :-
+    mas_proximo_al_centro_2(L, I_actual, J_actual, MinActual, I_final, J_final).
 
-% mas_proximo_al_centro(ListaCeldasLibres, I_final, J_final  ) :-
+% mas_proximo_al_centro(+ListaCeldasLibres, -I_final, -J_final) ->
 % Caso borde, en teoria no deberia invocarse este predicado con lista vacia
 mas_proximo_al_centro([], 99, 99).
-%
+% Caso genérico, calcula la distancia al centro de la primer celda libre y comienza a calcular
 mas_proximo_al_centro([(I,J) | L], I_final, J_final) :-
     distancia_al_centro(I, J, Distancia),
     mas_proximo_al_centro_2(L, I, J, Distancia, I_final, J_final ).
